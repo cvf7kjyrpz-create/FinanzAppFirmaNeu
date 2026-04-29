@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V12</title>
+    <title>Portfolio V12.1</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,11 +23,9 @@
             overscroll-behavior-y: none;
         }
         
-        /* Clean Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Minimalist Inputs */
         input, select {
             background: transparent;
             border-bottom: 1px solid #333;
@@ -43,11 +41,9 @@
         }
         input[type="date"] { color-scheme: dark; }
         
-        /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        /* Utility */
         .modal-overlay { background: rgba(0,0,0,0.9); backdrop-filter: blur(4px); }
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
@@ -120,22 +116,23 @@
         </div>
     </div>
 
-
     <div id="viewHistory" class="view-section px-5 pt-12 pb-8 bg-black">
-        
         <div class="flex items-center justify-between mb-6 shrink-0">
             <span class="text-sm font-bold uppercase tracking-widest text-gray-500">Alle Käufe</span>
-            <button onclick="switchView('dashboard')" class="text-white hover:text-gray-400">
-                <i class="ph ph-x text-xl"></i>
-            </button>
+            <div class="flex gap-4">
+                <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white transition-colors">
+                    <i id="iconPrivacyHistory" class="ph ph-eye text-xl"></i>
+                </button>
+                <button onclick="switchView('dashboard')" class="text-white hover:text-gray-400">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
         </div>
 
         <div class="flex-1 overflow-hidden flex flex-col">
-            <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4">
-                </div>
+            <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4"></div>
         </div>
     </div>
-
 
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
         <div class="bg-[#111] border border-[#333] w-full max-w-xs rounded-xl p-6 shadow-2xl">
@@ -143,33 +140,26 @@
                 <h3 class="text-white font-medium text-sm uppercase tracking-widest">Einstellungen</h3>
                 <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
-
             <div class="space-y-3">
                 <div class="text-[10px] text-gray-600 uppercase font-bold mb-2">Datenverwaltung</div>
-                
                 <button onclick="exportBackup()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
                     <i class="ph ph-download-simple"></i> Backup Speichern
                 </button>
-                
                 <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
                     <i class="ph ph-upload-simple"></i> Backup Laden
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
-                
-                <div class="text-[9px] text-gray-700 text-center mt-2">
-                    Keine Daten werden auf Server übertragen.<br>Alles bleibt auf diesem Gerät.
-                </div>
+                <div class="text-[9px] text-gray-700 text-center mt-2">Alles bleibt auf diesem Gerät.</div>
             </div>
         </div>
     </div>
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-end sm:items-center justify-center p-4">
-        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6 shadow-2xl animate-fade-in-up">
+        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-8">
                 <h3 id="modalTitle" class="text-white font-medium text-sm uppercase tracking-widest">Eintrag</h3>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
-            
             <div class="space-y-6">
                 <div class="flex gap-4">
                     <div class="w-1/3">
@@ -185,7 +175,6 @@
                         <input type="text" id="inpProd" placeholder="Name" class="w-full py-2 text-sm">
                     </div>
                 </div>
-
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Preis (€)</label>
@@ -196,7 +185,6 @@
                         <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full py-2 text-lg font-medium">
                     </div>
                 </div>
-
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Ort</label>
@@ -208,28 +196,20 @@
                     </div>
                 </div>
             </div>
-
             <div class="mt-8 flex gap-3">
-                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-10 border border-red-900 text-red-700 hover:bg-red-900/20 text-xs font-bold uppercase tracking-widest rounded">Löschen</button>
-                <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black hover:bg-gray-200 text-xs font-bold uppercase tracking-widest rounded">Speichern</button>
+                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-10 border border-red-900 text-red-700 text-xs font-bold uppercase tracking-widest rounded">Löschen</button>
+                <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black text-xs font-bold uppercase tracking-widest rounded">Speichern</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIG
+        // DATA
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
-        // Migration V11 -> V12
-        if(entries.length === 0) {
-            const v11 = JSON.parse(localStorage.getItem('portfolio_entries_v11'));
-            if(v11) { entries = v11; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
-        }
-
         let prices = JSON.parse(localStorage.getItem('portfolio_prices_v12')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
         let isPrivacyMode = false;
         let currentEditId = null;
 
-        // UI Refs
         const els = {
             totalVal: document.getElementById('currentValueDisplay'),
             plDisplay: document.getElementById('plDisplay'),
@@ -241,7 +221,7 @@
             etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
             lastUpdate: document.getElementById('lastUpdateLabel'),
             iconPrivacy: document.getElementById('iconPrivacy'),
-            // Modals
+            iconPrivacyHistory: document.getElementById('iconPrivacyHistory'),
             modal: document.getElementById('entryModal'),
             settingsModal: document.getElementById('settingsModal'),
             inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
@@ -250,12 +230,14 @@
             btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight')
         };
 
-        // INIT
-        render();
-        document.addEventListener("DOMContentLoaded", fetchAllPrices);
-        document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
+        // INITIALIZE
+        function init() {
+            render();
+            fetchAllPrices();
+        }
+        document.addEventListener("DOMContentLoaded", init);
 
-        // VIEW LOGIC
+        // LOGIC
         function switchView(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if(viewName === 'history') {
@@ -269,17 +251,21 @@
         
         function togglePrivacy() {
             isPrivacyMode = !isPrivacyMode;
-            els.iconPrivacy.className = isPrivacyMode ? "ph ph-eye-slash text-2xl" : "ph ph-eye text-2xl";
+            const iconClass = isPrivacyMode ? "ph ph-eye-slash text-2xl" : "ph ph-eye text-2xl";
+            const iconClassSmall = isPrivacyMode ? "ph ph-eye-slash text-xl" : "ph ph-eye text-xl";
+            if(els.iconPrivacy) els.iconPrivacy.className = iconClass;
+            if(els.iconPrivacyHistory) els.iconPrivacyHistory.className = iconClassSmall;
+            
+            // Wichtig: Beide Ansichten aktualisieren
             render(); 
+            if(document.getElementById('viewHistory').classList.contains('active')) {
+                renderList();
+            }
         }
 
-        function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
-        function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
-
-        // FETCHING
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
-            icon.classList.add('ph-spinner', 'spin-slow');
+            if(icon) icon.classList.add('ph-spinner', 'spin-slow');
             
             const fetchSafe = async (symbol) => {
                 try {
@@ -287,7 +273,6 @@
                     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                     const res = await fetch(proxyUrl);
                     const data = await res.json();
-                    if(!data.contents) return null;
                     return JSON.parse(data.contents).chart.result[0].meta.regularMarketPrice;
                 } catch(e) { return null; }
             };
@@ -304,52 +289,56 @@
             localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
             
             render();
-            icon.classList.remove('ph-spinner', 'spin-slow');
+            if(icon) icon.classList.remove('ph-spinner', 'spin-slow');
         }
 
-        // RENDER DASHBOARD
         function render() {
-            let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
+            try {
+                let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
 
-            if(entries.length === 0) els.sinceDate.innerText = "Keine Daten";
-            else {
-                const sorted = [...entries].sort((a,b) => new Date(a.date) - new Date(b.date));
-                els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
-            }
-            els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
+                if(entries.length === 0) {
+                    els.sinceDate.innerText = "Keine Daten";
+                } else {
+                    const validEntries = entries.filter(e => e.date && !isNaN(new Date(e.date).getTime()));
+                    if(validEntries.length > 0) {
+                        const sorted = [...validEntries].sort((a,b) => new Date(a.date) - new Date(b.date));
+                        els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
+                    }
+                }
+                els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
 
-            entries.forEach(e => {
-                tInv += e.amount;
-                let p = 0;
-                if(e.category === 'gold') p = prices.gold;
-                else if(e.category === 'silver') p = prices.silver;
-                else p = prices.etf;
+                entries.forEach(e => {
+                    tInv += (e.amount || 0);
+                    let p = 0;
+                    if(e.category === 'gold') p = prices.gold;
+                    else if(e.category === 'silver') p = prices.silver;
+                    else p = prices.etf;
+                    
+                    let val = (p > 0) ? (e.weight || 0) * p : (e.amount || 0);
+                    
+                    if(e.category === 'gold') { gVal += val; gInv += e.amount; }
+                    else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
+                    else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
+                    tVal += val;
+                });
+
+                els.totalVal.innerText = fmt(tVal);
+                const totalPL = tVal - tInv;
+                const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
                 
-                let val = (p > 0) ? e.weight * p : e.amount;
+                els.plDisplay.innerText = (totalPL >= 0 ? "+" : "") + fmt(totalPL);
+                els.plPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
                 
-                if(e.category === 'gold') { gVal += val; gInv += e.amount; }
-                else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
-                else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
-                tVal += val;
-            });
+                const col = totalPL >= 0 ? "text-green-500" : "text-red-500";
+                els.plDisplay.className = "text-xs " + col;
+                els.plPercent.className = "text-xs font-bold " + col;
 
-            els.totalVal.innerText = fmt(tVal);
-            const totalPL = tVal - tInv;
-            const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
-            
-            els.plDisplay.innerText = (totalPL >= 0 ? "+" : "") + fmt(totalPL);
-            els.plPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
-            
-            const col = totalPL >= 0 ? "text-green-500" : "text-red-500";
-            els.plDisplay.className = "text-xs " + col;
-            els.plPercent.className = "text-xs font-bold " + col;
-
-            updateCard(els.goldVal, els.goldPL, gVal, gInv);
-            updateCard(els.silverVal, els.silverPL, sVal, sInv);
-            updateCard(els.etfVal, els.etfPL, eVal, eInv);
+                updateCard(els.goldVal, els.goldPL, gVal, gInv);
+                updateCard(els.silverVal, els.silverPL, sVal, sInv);
+                updateCard(els.etfVal, els.etfPL, eVal, eInv);
+            } catch(err) { console.error("Render Error", err); }
         }
 
-        // RENDER LIST
         function renderList() {
             els.list.innerHTML = '';
             if(entries.length === 0) {
@@ -363,12 +352,12 @@
                 else if(e.category === 'silver') p = prices.silver;
                 else p = prices.etf;
 
-                const val = (p > 0) ? e.weight * p : e.amount;
-                const pl = val - e.amount;
+                const val = (p > 0) ? (e.weight || 0) * p : (e.amount || 0);
+                const pl = val - (e.amount || 0);
                 const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
                 const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
                 
-                const dateStr = new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
+                const dateStr = e.date ? new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '--';
                 let catLabel = e.category === 'etf' ? 'ETF' : (e.category === 'gold' ? 'Gold' : 'Silber');
 
                 const el = document.createElement('div');
@@ -376,7 +365,7 @@
                 el.className = 'border-b border-[#222] pb-3 last:border-0 cursor-pointer';
                 el.innerHTML = `
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-white text-sm font-medium">${e.product}</span>
+                        <span class="text-white text-sm font-medium">${e.product || 'Eintrag'}</span>
                         <span class="text-white text-sm font-light">${fmt(val)}</span>
                     </div>
                     <div class="flex justify-between items-center">
@@ -384,10 +373,9 @@
                             <span class="uppercase tracking-wider">${catLabel}</span>
                             <span>•</span>
                             <span>${dateStr}</span>
-                            ${e.location ? `<span>• ${e.location}</span>` : ''}
                         </div>
                         <div class="flex gap-2 text-[10px]">
-                            <span class="text-gray-600">${isPrivacyMode ? '•••• €' : fmt0(e.amount)}</span>
+                            <span class="text-gray-600">${fmt(e.amount || 0)}</span>
                             <span class="${col}">${pl >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>
                         </div>
                     </div>
@@ -404,7 +392,6 @@
             elPL.className = diff >= 0 ? "text-[9px] text-green-500" : "text-[9px] text-red-500";
         }
 
-        // ACTIONS
         function openModal(id = null) {
             currentEditId = id;
             els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
@@ -429,23 +416,21 @@
         function updateModalLabels() {
             if(els.inpCat.value === 'etf') { 
                 els.lblWeight.innerText = "Anzahl (Stk)"; 
-                els.inpWgt.placeholder="2.5";
-                if(els.inpProd.value === '') els.inpProd.value = "iShares Core MSCI World";
+                if(els.inpProd.value === '') els.inpProd.value = "Core MSCI World USD (Acc)";
             } else { 
                 els.lblWeight.innerText = "Gewicht (g)"; 
-                els.inpWgt.placeholder="31.1"; 
-                if(els.inpProd.value === "iShares Core MSCI World") els.inpProd.value = "";
+                if(els.inpProd.value === "Core MSCI World USD (Acc)") els.inpProd.value = "";
             }
         }
         
         function saveEntry() {
             const amt = parseFloat(els.inpAmt.value);
             const wgt = parseFloat(els.inpWgt.value);
-            if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
+            if(isNaN(amt)) { alert("Bitte Preis eingeben"); return; }
             
             const cat = els.inpCat.value;
             let prod = els.inpProd.value.trim();
-            if(!prod) prod = cat === 'etf' ? "iShares Core MSCI World" : (cat==='gold'?"Gold":"Silber");
+            if(!prod) prod = cat === 'etf' ? "Core MSCI World USD (Acc)" : (cat==='gold'?"Gold":"Silber");
 
             const item = {
                 id: currentEditId || Date.now(),
@@ -462,20 +447,20 @@
             entries.sort((a,b) => new Date(b.date) - new Date(a.date));
             localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
             
-            if(document.getElementById('viewHistory').classList.contains('active')) renderList();
-            render(); closeModal();
+            render(); renderList(); closeModal();
         }
-        
+
         function deleteCurrentEntry() {
-            if(confirm("Löschen?")) {
+            if(confirm("Eintrag wirklich löschen?")) {
                 entries = entries.filter(x => x.id !== currentEditId);
                 localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
-                if(document.getElementById('viewHistory').classList.contains('active')) renderList();
-                render(); closeModal();
+                render(); renderList(); closeModal();
             }
         }
-        
-        // BACKUP
+
+        function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
+        function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
+
         function exportBackup() {
             const d = {entries, prices, version:'v12'};
             const a = document.createElement('a');
@@ -490,19 +475,20 @@
             r.onload = e => {
                 try {
                     const d = JSON.parse(e.target.result);
-                    if(confirm("Warnung: Daten werden überschrieben.")) {
+                    if(confirm("Daten überschreiben?")) {
                         if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
-                        if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices)); }
                         location.reload();
                     }
-                } catch(err) { alert("Backup Fehler"); }
+                } catch(err) { alert("Fehler beim Laden"); }
             };
             r.readAsText(f);
-            closeSettings();
         }
         
-        function fmt(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
-        function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
+        function fmt(n) { 
+            if(isPrivacyMode) return '•••• €';
+            if(isNaN(n)) return '0,00 €';
+            return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); 
+        }
     </script>
 </body>
 </html>
