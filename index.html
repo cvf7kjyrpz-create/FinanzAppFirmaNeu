@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V12</title>
+    <title>Portfolio V16</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,11 +23,9 @@
             overscroll-behavior-y: none;
         }
         
-        /* Clean Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Minimalist Inputs */
         input, select {
             background: transparent;
             border-bottom: 1px solid #333;
@@ -43,11 +41,9 @@
         }
         input[type="date"] { color-scheme: dark; }
         
-        /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        /* Utility */
         .modal-overlay { background: rgba(0,0,0,0.9); backdrop-filter: blur(4px); }
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
@@ -59,7 +55,7 @@
         
         <div class="flex justify-between items-center mb-8 shrink-0">
             <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white transition-colors">
-                <i id="iconPrivacy" class="ph ph-eye text-2xl"></i>
+                <i id="iconPrivacy" class="ph ph-eye-slash text-2xl"></i>
             </button>
             <div class="flex gap-4">
                 <button onclick="fetchAllPrices()" class="text-gray-500 hover:text-white transition-colors">
@@ -85,7 +81,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8 shrink-0">
+        <div class="grid grid-cols-3 gap-3 mb-6 shrink-0">
             <div class="bg-[#111] border border-[#222] rounded-lg p-3 text-center">
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Gold</p>
                 <p id="goldVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
@@ -103,13 +99,29 @@
             </div>
         </div>
 
+        <div class="bg-[#111] border border-[#222] rounded-lg py-3 px-4 mb-8 shrink-0 flex justify-between items-center">
+            <div class="text-center w-1/3">
+                <p class="text-[8px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Gold / g</p>
+                <p id="marketGold" class="text-[11px] font-mono text-white">Lade...</p>
+            </div>
+            <div class="w-[1px] h-6 bg-[#333]"></div>
+            <div class="text-center w-1/3">
+                <p class="text-[8px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Silber / g</p>
+                <p id="marketSilver" class="text-[11px] font-mono text-white">Lade...</p>
+            </div>
+            <div class="w-[1px] h-6 bg-[#333]"></div>
+            <div class="text-center w-1/3">
+                <p class="text-[8px] text-gray-500 uppercase tracking-widest mb-1 font-bold">MSCI World</p>
+                <p id="marketETF" class="text-[11px] font-mono text-white">Lade...</p>
+            </div>
+        </div>
+
         <div class="flex-1"></div>
 
         <div class="space-y-3 shrink-0">
             <button onclick="openModal()" class="w-full h-12 bg-white text-black rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
                 Neuer Eintrag
             </button>
-            
             <button onclick="switchView('history')" class="w-full h-12 bg-transparent border border-[#333] text-gray-400 rounded-lg text-xs font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors">
                 Historie Ansehen
             </button>
@@ -120,22 +132,17 @@
         </div>
     </div>
 
-
     <div id="viewHistory" class="view-section px-5 pt-12 pb-8 bg-black">
-        
         <div class="flex items-center justify-between mb-6 shrink-0">
             <span class="text-sm font-bold uppercase tracking-widest text-gray-500">Alle Käufe</span>
             <button onclick="switchView('dashboard')" class="text-white hover:text-gray-400">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
-
         <div class="flex-1 overflow-hidden flex flex-col">
-            <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4">
-                </div>
+            <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4"></div>
         </div>
     </div>
-
 
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
         <div class="bg-[#111] border border-[#333] w-full max-w-xs rounded-xl p-6 shadow-2xl">
@@ -143,28 +150,21 @@
                 <h3 class="text-white font-medium text-sm uppercase tracking-widest">Einstellungen</h3>
                 <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
-
             <div class="space-y-3">
                 <div class="text-[10px] text-gray-600 uppercase font-bold mb-2">Datenverwaltung</div>
-                
                 <button onclick="exportBackup()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
                     <i class="ph ph-download-simple"></i> Backup Speichern
                 </button>
-                
                 <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
                     <i class="ph ph-upload-simple"></i> Backup Laden
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
-                
-                <div class="text-[9px] text-gray-700 text-center mt-2">
-                    Keine Daten werden auf Server übertragen.<br>Alles bleibt auf diesem Gerät.
-                </div>
             </div>
         </div>
     </div>
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-end sm:items-center justify-center p-4">
-        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6 shadow-2xl animate-fade-in-up">
+        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-8">
                 <h3 id="modalTitle" class="text-white font-medium text-sm uppercase tracking-widest">Eintrag</h3>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
@@ -217,19 +217,13 @@
     </div>
 
     <script>
-        // CONFIG
+        // CONFIG & STATE
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
-        // Migration V11 -> V12
-        if(entries.length === 0) {
-            const v11 = JSON.parse(localStorage.getItem('portfolio_entries_v11'));
-            if(v11) { entries = v11; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
-        }
-
         let prices = JSON.parse(localStorage.getItem('portfolio_prices_v12')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
-        let isPrivacyMode = false;
+        let isPrivacyMode = true; // STARTET VERSTECKT
         let currentEditId = null;
 
-        // UI Refs
+        // UI ELEMENTS
         const els = {
             totalVal: document.getElementById('currentValueDisplay'),
             plDisplay: document.getElementById('plDisplay'),
@@ -241,7 +235,9 @@
             etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
             lastUpdate: document.getElementById('lastUpdateLabel'),
             iconPrivacy: document.getElementById('iconPrivacy'),
-            // Modals
+            mGold: document.getElementById('marketGold'),
+            mSilver: document.getElementById('marketSilver'),
+            mETF: document.getElementById('marketETF'),
             modal: document.getElementById('entryModal'),
             settingsModal: document.getElementById('settingsModal'),
             inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
@@ -255,7 +251,7 @@
         document.addEventListener("DOMContentLoaded", fetchAllPrices);
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
 
-        // VIEW LOGIC
+        // VIEW & PRIVACY LOGIC
         function switchView(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if(viewName === 'history') {
@@ -276,57 +272,85 @@
         function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
         function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
 
-        // FETCHING - Robustere Version mit Cache-Umgehung und Fallback
+        // NEUE, ZUVERLÄSSIGE FETCH-FUNKTION
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
-            icon.classList.add('ph-spinner', 'spin-slow');
+            if(icon) icon.classList.add('ph-spinner', 'spin-slow');
+            els.lastUpdate.innerText = "Kurse werden aktualisiert...";
             
-            const fetchSafe = async (symbol) => {
-                try {
-                    // Variante 1: Chart API (mit Zeitstempel zur Umgehung des Caches)
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&ts=${Date.now()}`;
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const res = await fetch(proxyUrl);
-                    const data = await res.json();
-                    if(data && data.contents) {
-                        const json = JSON.parse(data.contents);
-                        if(json.chart && json.chart.result && json.chart.result[0]) {
-                            return json.chart.result[0].meta.regularMarketPrice;
-                        }
-                    }
+            els.mGold.innerText = "Lade...";
+            els.mSilver.innerText = "Lade...";
+            els.mETF.innerText = "Lade...";
+
+            // 1. GOLD & SILBER - Ohne Yahoo, ohne Proxy (Extrem zuverlässig!)
+            try {
+                // Diese API liefert "Wie viel Gold/Silber bekomme ich für 1 Euro"
+                const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json');
+                const data = await res.json();
+                
+                if (data && data.eur && data.eur.xau && data.eur.xag) {
+                    const pricePerOzGold = 1 / data.eur.xau;
+                    const pricePerOzSilver = 1 / data.eur.xag;
                     
-                    // Variante 2: Quote API (Fallback, falls Chart API streikt)
-                    const fallbackUrl = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${symbol}&ts=${Date.now()}`;
-                    const fallbackProxy = `https://api.allorigins.win/get?url=${encodeURIComponent(fallbackUrl)}`;
-                    const res2 = await fetch(fallbackProxy);
-                    const data2 = await res2.json();
-                    if(data2 && data2.contents) {
-                        const json2 = JSON.parse(data2.contents);
-                        if(json2.quoteResponse && json2.quoteResponse.result && json2.quoteResponse.result[0]) {
-                            return json2.quoteResponse.result[0].regularMarketPrice;
-                        }
+                    prices.gold = pricePerOzGold / 31.1034768;   // Umrechnung in Gramm
+                    prices.silver = pricePerOzSilver / 31.1034768; // Umrechnung in Gramm
+                    
+                    els.mGold.innerText = prices.gold.toFixed(2) + " €";
+                    els.mSilver.innerText = prices.silver.toFixed(2) + " €";
+                } else {
+                    throw new Error("Daten fehlen");
+                }
+            } catch (e) {
+                console.error("Fehler Gold/Silber:", e);
+                els.mGold.innerText = "Fehler";
+                els.mSilver.innerText = "Fehler";
+            }
+
+            // 2. ETF (Core MSCI World) - Yahoo über Proxy, mit Fallback
+            try {
+                const url = 'https://query1.finance.yahoo.com/v8/finance/chart/EUNL.DE?interval=1d&range=1d';
+                
+                // Wir testen erst Proxy 1
+                let fetchSuccess = false;
+                try {
+                    const res1 = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&ts=${Date.now()}`);
+                    const data1 = await res1.json();
+                    if (data1?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+                        prices.etf = data1.chart.result[0].meta.regularMarketPrice;
+                        fetchSuccess = true;
                     }
-                } catch(e) { console.error("Fetch Fehler:", e); }
-                return null;
-            };
+                } catch(e1) {}
 
-            // EUNL.DE ist Core MSCI World
-            const [g, s, e] = await Promise.all([
-                fetchSafe('XAUEUR=X'), fetchSafe('XAGEUR=X'), fetchSafe('EUNL.DE')
-            ]);
+                // Wenn Proxy 1 klemmt, nehmen wir Proxy 2 (Codetabs)
+                if (!fetchSuccess) {
+                    const res2 = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`);
+                    const data2 = await res2.json();
+                    if (data2?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+                        prices.etf = data2.chart.result[0].meta.regularMarketPrice;
+                        fetchSuccess = true;
+                    }
+                }
 
-            if(g) prices.gold = g / 31.1034768; 
-            if(s) prices.silver = s / 31.1034768;
-            if(e) prices.etf = e;
+                if(fetchSuccess) {
+                    els.mETF.innerText = prices.etf.toFixed(2) + " €";
+                } else {
+                    els.mETF.innerText = "Fehler";
+                }
+            } catch (e) {
+                console.error("Fehler ETF:", e);
+                els.mETF.innerText = "Fehler";
+            }
 
+            // Status speichern
             prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
             localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
+            els.lastUpdate.innerText = "Letztes Update: " + prices.lastUpdate;
             
             render();
-            icon.classList.remove('ph-spinner', 'spin-slow');
+            if(icon) icon.classList.remove('ph-spinner', 'spin-slow');
         }
 
-        // RENDER DASHBOARD
+        // RENDER LOGIK
         function render() {
             let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
 
@@ -335,6 +359,11 @@
                 const sorted = [...entries].sort((a,b) => new Date(a.date) - new Date(b.date));
                 els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
             }
+
+            // Fallback Anzeige, falls fetch nicht lief
+            if(prices.gold > 0 && els.mGold.innerText === "Lade...") els.mGold.innerText = prices.gold.toFixed(2) + " €";
+            if(prices.silver > 0 && els.mSilver.innerText === "Lade...") els.mSilver.innerText = prices.silver.toFixed(2) + " €";
+            if(prices.etf > 0 && els.mETF.innerText === "Lade...") els.mETF.innerText = prices.etf.toFixed(2) + " €";
             els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
 
             entries.forEach(e => {
@@ -368,7 +397,6 @@
             updateCard(els.etfVal, els.etfPL, eVal, eInv);
         }
 
-        // RENDER LIST
         function renderList() {
             els.list.innerHTML = '';
             if(entries.length === 0) {
@@ -423,7 +451,7 @@
             elPL.className = diff >= 0 ? "text-[9px] text-green-500" : "text-[9px] text-red-500";
         }
 
-        // ACTIONS
+        // DATENVERWALTUNG & MODALS
         function openModal(id = null) {
             currentEditId = id;
             els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
@@ -494,7 +522,6 @@
             }
         }
         
-        // BACKUP
         function exportBackup() {
             const d = {entries, prices, version:'v12'};
             const a = document.createElement('a');
@@ -502,7 +529,6 @@
             a.download = "portfolio_backup.json"; a.click();
         }
         
-        // BACKUP IMPORT - Korrigiert für alle Backup-Formate
         function importBackup(inp) {
             const f = inp.files[0];
             if(!f) return;
@@ -510,21 +536,14 @@
             r.onload = e => {
                 try {
                     const d = JSON.parse(e.target.result);
-                    if(confirm("Warnung: Daten werden überschrieben.")) {
-                        // Prüfen, ob das Backup ein reines Array ist (älteres Format)
+                    if(confirm("Daten überschreiben?")) {
+                        // AKZEPTIERT BEIDE BACKUP ARTEN!
                         if(Array.isArray(d)) {
                             entries = d;
                             localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
                         } else {
-                            // Neueres Format (Objekt mit entries und prices)
-                            if(d.entries) { 
-                                entries = d.entries; 
-                                localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); 
-                            }
-                            if(d.prices) { 
-                                prices = d.prices; 
-                                localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices)); 
-                            }
+                            if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
+                            if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices)); }
                         }
                         location.reload();
                     }
