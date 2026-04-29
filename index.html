@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V12.7</title>
+    <title>Portfolio V12.8</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <div class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg py-2 px-4 mb-8 shrink-0">
+        <div id="marketBar" class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg py-2 px-4 mb-8 shrink-0">
             <div class="flex justify-around items-center">
                 <div class="text-center">
                     <p class="text-[8px] text-gray-600 uppercase font-bold">Gold (g)</p>
@@ -129,7 +129,7 @@
         </div>
         
         <div class="mt-4 text-center pb-safe">
-             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono tracking-tighter">Initialisierung...</span>
+             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono tracking-tighter">Bereit...</span>
         </div>
     </div>
 
@@ -191,7 +191,7 @@
                 </div>
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Preis (€)</label>
+                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Kaufpreis (€)</label>
                         <input type="number" id="inpAmt" step="0.01" inputmode="decimal" class="w-full py-2 text-lg">
                     </div>
                     <div class="w-1/2">
@@ -248,69 +248,57 @@
             mETF: document.getElementById('marketETF')
         };
 
-        // ULTRA-ROBUSTER ABRUF
+        // VERBESSERTER ABRUF (GOLD/SILBER FOKUS)
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             if(icon) icon.classList.add('ph-spinner', 'spin-slow');
             
-            els.lastUpdate.innerText = "Verbinde mit Börse...";
-            els.mGold.classList.add('pulse');
-            els.mSilver.classList.add('pulse');
-            els.mETF.classList.add('pulse');
+            els.lastUpdate.innerText = "Verbindung wird aufgebaut...";
+            els.mGold.classList.add('pulse'); els.mSilver.classList.add('pulse'); els.mETF.classList.add('pulse');
 
-            const tickers = {
-                gold: 'XAUEUR=X',
-                silver: 'XAGEUR=X',
-                etf: 'EUNL.DE'
-            };
-
-            // Strategie: Probiere verschiedene Proxys aus
             const proxies = [
-                (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-                (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&ts=${Date.now()}`
+                (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&ts=${Date.now()}`,
+                (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
             ];
 
             async function tryFetch(ticker, proxyIdx = 0) {
+                // Bei Gold/Silber versuchen wir zusätzlich eine alternative Yahoo-URL, falls die Standard-URL fehlschlägt
                 const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
-                const finalUrl = proxies[proxyIdx](url);
-
+                
                 try {
-                    const controller = new AbortController();
-                    const id = setTimeout(() => controller.abort(), 8000);
-                    const response = await fetch(finalUrl, { signal: controller.signal });
-                    clearTimeout(id);
-
-                    if (!response.ok) throw new Error();
-                    
-                    const data = await response.json();
-                    // AllOrigins verpackt das Ergebnis in .contents
-                    const rawJson = data.contents ? JSON.parse(data.contents) : data;
-                    return rawJson.chart.result[0].meta.regularMarketPrice;
+                    const res = await fetch(proxies[proxyIdx](url));
+                    const data = await res.json();
+                    const raw = data.contents ? JSON.parse(data.contents) : data;
+                    return raw.chart.result[0].meta.regularMarketPrice;
                 } catch (e) {
-                    if (proxyIdx < proxies.length - 1) {
-                        console.log(`Proxy ${proxyIdx} fehlgeschlagen für ${ticker}, versuche nächsten...`);
-                        els.lastUpdate.innerText = `Wechsle Brücke für ${ticker}...`;
-                        return await tryFetch(ticker, proxyIdx + 1);
-                    }
+                    if (proxyIdx < proxies.length - 1) return tryFetch(ticker, proxyIdx + 1);
                     return null;
                 }
             }
 
-            // Parallel abrufen
+            // Abruf der drei Werte
             const [g, s, e] = await Promise.all([
-                tryFetch(tickers.gold),
-                tryFetch(tickers.silver),
-                tryFetch(tickers.etf)
+                tryFetch('XAUEUR=X'),
+                tryFetch('XAGEUR=X'),
+                tryFetch('EUNL.DE')
             ]);
 
-            if(g) { prices.gold = g / 31.1034768; els.mGold.innerText = (g/31.1034768).toFixed(2) + " €"; }
-            else { els.mGold.innerText = "Err"; }
+            // Gold: Preis pro Unze zu Preis pro Gramm
+            if(g) { 
+                prices.gold = g / 31.1034768; 
+                els.mGold.innerText = prices.gold.toFixed(2) + " €"; 
+            } else { els.mGold.innerText = "N/A"; }
 
-            if(s) { prices.silver = s / 31.1034768; els.mSilver.innerText = (s/31.1034768).toFixed(2) + " €"; }
-            else { els.mSilver.innerText = "Err"; }
+            // Silber: Preis pro Unze zu Preis pro Gramm
+            if(s) { 
+                prices.silver = s / 31.1034768; 
+                els.mSilver.innerText = prices.silver.toFixed(2) + " €"; 
+            } else { els.mSilver.innerText = "N/A"; }
 
-            if(e) { prices.etf = e; els.mETF.innerText = e.toFixed(2) + " €"; }
-            else { els.mETF.innerText = "Err"; }
+            if(e) { 
+                prices.etf = e; 
+                els.mETF.innerText = e.toFixed(2) + " €"; 
+            } else { els.mETF.innerText = "N/A"; }
 
             els.mGold.classList.remove('pulse');
             els.mSilver.classList.remove('pulse');
@@ -329,8 +317,10 @@
             entries.forEach(e => {
                 const inv = parseFloat(e.amount) || 0;
                 tInv += inv;
-                let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
-                let val = (p > 0) ? (parseFloat(e.weight) || 0) * p : inv;
+                let currentP = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
+                
+                // Falls Kurs 0 ist, nehmen wir den Kaufpreis (0% Performance)
+                let val = (currentP > 0) ? (parseFloat(e.weight) || 0) * currentP : inv;
                 
                 if(e.category === 'gold') { gVal += val; gInv += inv; }
                 else if(e.category === 'silver') { sVal += val; sInv += inv; }
@@ -356,7 +346,7 @@
         function renderList() {
             els.list.innerHTML = '';
             const filtered = currentFilter === 'all' ? entries : entries.filter(e => e.category === currentFilter);
-
+            
             filtered.forEach(e => {
                 let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
                 const val = (p > 0) ? (e.weight * p) : e.amount;
@@ -434,9 +424,6 @@
             }
             updateModalLabels();
         }
-        function closeModal() { els.modal.classList.replace('flex', 'hidden'); }
-        function openSettings() { els.settingsModal.classList.replace('hidden', 'flex'); }
-        function closeSettings() { els.settingsModal.classList.replace('flex', 'hidden'); }
 
         function saveEntry() {
             const item = { 
@@ -455,8 +442,6 @@
             render(); renderList(); closeModal();
         }
 
-        function deleteCurrentEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== currentEditId); localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); render(); renderList(); closeModal(); } }
-
         function importBackup(inp) {
             const f = inp.files[0];
             if(!f) return;
@@ -470,7 +455,7 @@
                         localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
                         location.reload();
                     }
-                } catch { alert("Backup ungültig"); }
+                } catch { alert("Fehler beim Backup"); }
             };
             r.readAsText(f);
         }
@@ -481,7 +466,11 @@
             a.download = "portfolio_backup.json"; a.click(); 
         }
 
+        function closeModal() { els.modal.classList.replace('flex', 'hidden'); }
+        function openSettings() { els.settingsModal.classList.replace('hidden', 'flex'); }
+        function closeSettings() { els.settingsModal.classList.replace('flex', 'hidden'); }
         function updateModalLabels() { if(els.inpCat.value==='etf') { if(!els.inpProd.value) els.inpProd.value="Core MSCI World USD (Acc)"; } }
+        function deleteCurrentEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== currentEditId); localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); render(); renderList(); closeModal(); } }
 
         document.addEventListener("DOMContentLoaded", () => {
             render(); 
