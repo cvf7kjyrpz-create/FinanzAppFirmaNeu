@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V15</title>
+    <title>Portfolio V12</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,9 +23,11 @@
             overscroll-behavior-y: none;
         }
         
+        /* Clean Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Minimalist Inputs */
         input, select {
             background: transparent;
             border-bottom: 1px solid #333;
@@ -41,9 +43,11 @@
         }
         input[type="date"] { color-scheme: dark; }
         
+        /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
+        /* Utility */
         .modal-overlay { background: rgba(0,0,0,0.9); backdrop-filter: blur(4px); }
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
@@ -55,7 +59,7 @@
         
         <div class="flex justify-between items-center mb-8 shrink-0">
             <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white transition-colors">
-                <i id="iconPrivacy" class="ph ph-eye-slash text-2xl"></i>
+                <i id="iconPrivacy" class="ph ph-eye text-2xl"></i>
             </button>
             <div class="flex gap-4">
                 <button onclick="fetchAllPrices()" class="text-gray-500 hover:text-white transition-colors">
@@ -81,7 +85,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-6 shrink-0">
+        <div class="grid grid-cols-3 gap-3 mb-8 shrink-0">
             <div class="bg-[#111] border border-[#222] rounded-lg p-3 text-center">
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Gold</p>
                 <p id="goldVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
@@ -96,25 +100,6 @@
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">ETF</p>
                 <p id="etfVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
                 <p id="etfPL" class="text-[9px] text-gray-600">0%</p>
-            </div>
-        </div>
-
-        <div class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg py-2 px-4 mb-8 shrink-0">
-            <div class="flex justify-around items-center">
-                <div class="text-center">
-                    <p class="text-[8px] text-gray-600 uppercase font-bold">Gold (g)</p>
-                    <p id="marketGold" class="text-[11px] text-gray-300 font-mono">Lade...</p>
-                </div>
-                <div class="h-4 w-[1px] bg-[#222]"></div>
-                <div class="text-center">
-                    <p class="text-[8px] text-gray-600 uppercase font-bold">Silber (g)</p>
-                    <p id="marketSilver" class="text-[11px] text-gray-300 font-mono">Lade...</p>
-                </div>
-                <div class="h-4 w-[1px] bg-[#222]"></div>
-                <div class="text-center">
-                    <p class="text-[8px] text-gray-600 uppercase font-bold">MSCI World</p>
-                    <p id="marketETF" class="text-[11px] text-gray-300 font-mono">Lade...</p>
-                </div>
             </div>
         </div>
 
@@ -135,17 +120,22 @@
         </div>
     </div>
 
+
     <div id="viewHistory" class="view-section px-5 pt-12 pb-8 bg-black">
+        
         <div class="flex items-center justify-between mb-6 shrink-0">
             <span class="text-sm font-bold uppercase tracking-widest text-gray-500">Alle Käufe</span>
             <button onclick="switchView('dashboard')" class="text-white hover:text-gray-400">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
+
         <div class="flex-1 overflow-hidden flex flex-col">
-            <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4"></div>
+            <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4">
+                </div>
         </div>
     </div>
+
 
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
         <div class="bg-[#111] border border-[#333] w-full max-w-xs rounded-xl p-6 shadow-2xl">
@@ -153,15 +143,19 @@
                 <h3 class="text-white font-medium text-sm uppercase tracking-widest">Einstellungen</h3>
                 <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
+
             <div class="space-y-3">
                 <div class="text-[10px] text-gray-600 uppercase font-bold mb-2">Datenverwaltung</div>
+                
                 <button onclick="exportBackup()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
                     <i class="ph ph-download-simple"></i> Backup Speichern
                 </button>
+                
                 <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
                     <i class="ph ph-upload-simple"></i> Backup Laden
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
+                
                 <div class="text-[9px] text-gray-700 text-center mt-2">
                     Keine Daten werden auf Server übertragen.<br>Alles bleibt auf diesem Gerät.
                 </div>
@@ -175,6 +169,7 @@
                 <h3 id="modalTitle" class="text-white font-medium text-sm uppercase tracking-widest">Eintrag</h3>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
+            
             <div class="space-y-6">
                 <div class="flex gap-4">
                     <div class="w-1/3">
@@ -190,6 +185,7 @@
                         <input type="text" id="inpProd" placeholder="Name" class="w-full py-2 text-sm">
                     </div>
                 </div>
+
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Preis (€)</label>
@@ -200,6 +196,7 @@
                         <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full py-2 text-lg font-medium">
                     </div>
                 </div>
+
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Ort</label>
@@ -211,6 +208,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="mt-8 flex gap-3">
                 <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-10 border border-red-900 text-red-700 hover:bg-red-900/20 text-xs font-bold uppercase tracking-widest rounded">Löschen</button>
                 <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black hover:bg-gray-200 text-xs font-bold uppercase tracking-widest rounded">Speichern</button>
@@ -221,13 +219,14 @@
     <script>
         // CONFIG
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
+        // Migration V11 -> V12
         if(entries.length === 0) {
             const v11 = JSON.parse(localStorage.getItem('portfolio_entries_v11'));
             if(v11) { entries = v11; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
         }
 
         let prices = JSON.parse(localStorage.getItem('portfolio_prices_v12')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
-        let isPrivacyMode = true; // Startet immer im Privacy-Modus
+        let isPrivacyMode = false;
         let currentEditId = null;
 
         // UI Refs
@@ -242,9 +241,7 @@
             etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
             lastUpdate: document.getElementById('lastUpdateLabel'),
             iconPrivacy: document.getElementById('iconPrivacy'),
-            mGold: document.getElementById('marketGold'),
-            mSilver: document.getElementById('marketSilver'),
-            mETF: document.getElementById('marketETF'),
+            // Modals
             modal: document.getElementById('entryModal'),
             settingsModal: document.getElementById('settingsModal'),
             inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
@@ -279,71 +276,51 @@
         function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
         function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
 
-        // DOPPELT ABGESICHERTER KURSABRUF
+        // FETCHING - Robustere Version mit Cache-Umgehung und Fallback
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             icon.classList.add('ph-spinner', 'spin-slow');
-            els.lastUpdate.innerText = "Lade Kurse...";
-            els.mGold.innerText = "Lade..."; els.mSilver.innerText = "Lade..."; els.mETF.innerText = "Lade...";
             
             const fetchSafe = async (symbol) => {
-                // Methode 1: Die Original-Methode (Chart API) MIT Cache-Buster
                 try {
+                    // Variante 1: Chart API (mit Zeitstempel zur Umgehung des Caches)
                     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&ts=${Date.now()}`;
                     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                     const res = await fetch(proxyUrl);
                     const data = await res.json();
-                    const json = JSON.parse(data.contents);
-                    if(json.chart.result[0].meta.regularMarketPrice) return json.chart.result[0].meta.regularMarketPrice;
-                } catch(e) {}
-
-                // Methode 2: Plan B (Quote API), falls Methode 1 blockiert wird
-                try {
-                    const url = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${symbol}&ts=${Date.now()}`;
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const res = await fetch(proxyUrl);
-                    const data = await res.json();
-                    const json = JSON.parse(data.contents);
-                    if(json.quoteResponse.result[0].regularMarketPrice) return json.quoteResponse.result[0].regularMarketPrice;
-                } catch(e) {}
-
+                    if(data && data.contents) {
+                        const json = JSON.parse(data.contents);
+                        if(json.chart && json.chart.result && json.chart.result[0]) {
+                            return json.chart.result[0].meta.regularMarketPrice;
+                        }
+                    }
+                    
+                    // Variante 2: Quote API (Fallback, falls Chart API streikt)
+                    const fallbackUrl = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${symbol}&ts=${Date.now()}`;
+                    const fallbackProxy = `https://api.allorigins.win/get?url=${encodeURIComponent(fallbackUrl)}`;
+                    const res2 = await fetch(fallbackProxy);
+                    const data2 = await res2.json();
+                    if(data2 && data2.contents) {
+                        const json2 = JSON.parse(data2.contents);
+                        if(json2.quoteResponse && json2.quoteResponse.result && json2.quoteResponse.result[0]) {
+                            return json2.quoteResponse.result[0].regularMarketPrice;
+                        }
+                    }
+                } catch(e) { console.error("Fetch Fehler:", e); }
                 return null;
             };
 
+            // EUNL.DE ist Core MSCI World
             const [g, s, e] = await Promise.all([
                 fetchSafe('XAUEUR=X'), fetchSafe('XAGEUR=X'), fetchSafe('EUNL.DE')
             ]);
 
-            let updated = false;
+            if(g) prices.gold = g / 31.1034768; 
+            if(s) prices.silver = s / 31.1034768;
+            if(e) prices.etf = e;
 
-            if(g) {
-                prices.gold = g / 31.1034768; 
-                els.mGold.innerText = prices.gold.toFixed(2) + " €";
-                updated = true;
-            } else {
-                els.mGold.innerText = "Fehler";
-            }
-
-            if(s) {
-                prices.silver = s / 31.1034768;
-                els.mSilver.innerText = prices.silver.toFixed(2) + " €";
-                updated = true;
-            } else {
-                els.mSilver.innerText = "Fehler";
-            }
-
-            if(e) {
-                prices.etf = e;
-                els.mETF.innerText = prices.etf.toFixed(2) + " €";
-                updated = true;
-            } else {
-                els.mETF.innerText = "Fehler";
-            }
-
-            if(updated) {
-                prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-                localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
-            }
+            prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+            localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
             
             render();
             icon.classList.remove('ph-spinner', 'spin-slow');
@@ -525,6 +502,7 @@
             a.download = "portfolio_backup.json"; a.click();
         }
         
+        // BACKUP IMPORT - Korrigiert für alle Backup-Formate
         function importBackup(inp) {
             const f = inp.files[0];
             if(!f) return;
@@ -533,8 +511,21 @@
                 try {
                     const d = JSON.parse(e.target.result);
                     if(confirm("Warnung: Daten werden überschrieben.")) {
-                        if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
-                        if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices)); }
+                        // Prüfen, ob das Backup ein reines Array ist (älteres Format)
+                        if(Array.isArray(d)) {
+                            entries = d;
+                            localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
+                        } else {
+                            // Neueres Format (Objekt mit entries und prices)
+                            if(d.entries) { 
+                                entries = d.entries; 
+                                localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); 
+                            }
+                            if(d.prices) { 
+                                prices = d.prices; 
+                                localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices)); 
+                            }
+                        }
                         location.reload();
                     }
                 } catch(err) { alert("Backup Fehler"); }
