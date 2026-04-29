@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V12.6</title>
+    <title>Portfolio V12.7</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -129,7 +129,7 @@
         </div>
         
         <div class="mt-4 text-center pb-safe">
-             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono tracking-tighter">Bereit...</span>
+             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono tracking-tighter">Initialisierung...</span>
         </div>
     </div>
 
@@ -218,7 +218,6 @@
     </div>
 
     <script>
-        // INIT DATA
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
         let prices = { gold: 0, silver: 0, etf: 0, lastUpdate: '--:--' };
         let isPrivacyMode = true; 
@@ -249,76 +248,89 @@
             mETF: document.getElementById('marketETF')
         };
 
-        // ROBUSTER PREIS-ABRUF
+        // ULTRA-ROBUSTER ABRUF
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             if(icon) icon.classList.add('ph-spinner', 'spin-slow');
             
-            els.lastUpdate.innerText = "Sende Anfrage...";
-            els.mGold.innerText = "Lade..."; els.mGold.classList.add('pulse');
-            els.mSilver.innerText = "Lade..."; els.mSilver.classList.add('pulse');
-            els.mETF.innerText = "Lade..."; els.mETF.classList.add('pulse');
+            els.lastUpdate.innerText = "Verbinde mit Börse...";
+            els.mGold.classList.add('pulse');
+            els.mSilver.classList.add('pulse');
+            els.mETF.classList.add('pulse');
 
-            const fetchWithTimeout = async (ticker) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 Sek Timeout
-
-                try {
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`)}&ts=${Date.now()}`;
-                    const response = await fetch(proxyUrl, { signal: controller.signal });
-                    if (!response.ok) throw new Error("Netzwerkfehler");
-                    
-                    const data = await response.json();
-                    const json = JSON.parse(data.contents);
-                    return json.chart.result[0].meta.regularMarketPrice;
-                } catch (e) {
-                    console.error(`Fehler bei ${ticker}:`, e);
-                    return null;
-                } finally {
-                    clearTimeout(timeoutId);
-                }
+            const tickers = {
+                gold: 'XAUEUR=X',
+                silver: 'XAGEUR=X',
+                etf: 'EUNL.DE'
             };
 
-            // Abruf starten
+            // Strategie: Probiere verschiedene Proxys aus
+            const proxies = [
+                (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+                (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&ts=${Date.now()}`
+            ];
+
+            async function tryFetch(ticker, proxyIdx = 0) {
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+                const finalUrl = proxies[proxyIdx](url);
+
+                try {
+                    const controller = new AbortController();
+                    const id = setTimeout(() => controller.abort(), 8000);
+                    const response = await fetch(finalUrl, { signal: controller.signal });
+                    clearTimeout(id);
+
+                    if (!response.ok) throw new Error();
+                    
+                    const data = await response.json();
+                    // AllOrigins verpackt das Ergebnis in .contents
+                    const rawJson = data.contents ? JSON.parse(data.contents) : data;
+                    return rawJson.chart.result[0].meta.regularMarketPrice;
+                } catch (e) {
+                    if (proxyIdx < proxies.length - 1) {
+                        console.log(`Proxy ${proxyIdx} fehlgeschlagen für ${ticker}, versuche nächsten...`);
+                        els.lastUpdate.innerText = `Wechsle Brücke für ${ticker}...`;
+                        return await tryFetch(ticker, proxyIdx + 1);
+                    }
+                    return null;
+                }
+            }
+
+            // Parallel abrufen
             const [g, s, e] = await Promise.all([
-                fetchWithTimeout('XAUEUR=X'),
-                fetchWithTimeout('XAGEUR=X'),
-                fetchWithTimeout('EUNL.DE')
+                tryFetch(tickers.gold),
+                tryFetch(tickers.silver),
+                tryFetch(tickers.etf)
             ]);
 
-            // Ergebnisse verarbeiten oder Fehler anzeigen
-            if(g) { prices.gold = g / 31.1034768; els.mGold.innerText = prices.gold.toFixed(2) + " €"; els.mGold.classList.remove('pulse'); } 
-            else { els.mGold.innerText = "Timeout"; els.mGold.classList.remove('pulse'); }
+            if(g) { prices.gold = g / 31.1034768; els.mGold.innerText = (g/31.1034768).toFixed(2) + " €"; }
+            else { els.mGold.innerText = "Err"; }
 
-            if(s) { prices.silver = s / 31.1034768; els.mSilver.innerText = prices.silver.toFixed(2) + " €"; els.mSilver.classList.remove('pulse'); } 
-            else { els.mSilver.innerText = "Timeout"; els.mSilver.classList.remove('pulse'); }
+            if(s) { prices.silver = s / 31.1034768; els.mSilver.innerText = (s/31.1034768).toFixed(2) + " €"; }
+            else { els.mSilver.innerText = "Err"; }
 
-            if(e) { prices.etf = e; els.mETF.innerText = e.toFixed(2) + " €"; els.mETF.classList.remove('pulse'); } 
-            else { els.mETF.innerText = "Timeout"; els.mETF.classList.remove('pulse'); }
+            if(e) { prices.etf = e; els.mETF.innerText = e.toFixed(2) + " €"; }
+            else { els.mETF.innerText = "Err"; }
+
+            els.mGold.classList.remove('pulse');
+            els.mSilver.classList.remove('pulse');
+            els.mETF.classList.remove('pulse');
 
             prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-            els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
+            els.lastUpdate.innerText = "Update: " + prices.lastUpdate;
             
             render();
             if(icon) icon.classList.remove('ph-spinner', 'spin-slow');
         }
 
-        // BERECHNUNG & ANZEIGE
         function render() {
             let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
 
             entries.forEach(e => {
                 const inv = parseFloat(e.amount) || 0;
-                const w = parseFloat(e.weight) || 0;
                 tInv += inv;
-                
-                let currentP = 0;
-                if(e.category === 'gold') currentP = prices.gold;
-                else if(e.category === 'silver') currentP = prices.silver;
-                else if(e.category === 'etf') currentP = prices.etf;
-                
-                // Falls Preis noch 0 ist (Ladefehler), nutze den Kaufpreis als Wert (0% Änderung)
-                let val = (currentP > 0) ? (w * currentP) : inv;
+                let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
+                let val = (p > 0) ? (parseFloat(e.weight) || 0) * p : inv;
                 
                 if(e.category === 'gold') { gVal += val; gInv += inv; }
                 else if(e.category === 'silver') { sVal += val; sInv += inv; }
@@ -344,7 +356,7 @@
         function renderList() {
             els.list.innerHTML = '';
             const filtered = currentFilter === 'all' ? entries : entries.filter(e => e.category === currentFilter);
-            
+
             filtered.forEach(e => {
                 let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
                 const val = (p > 0) ? (e.weight * p) : e.amount;
@@ -370,7 +382,6 @@
             });
         }
 
-        // TOOLS
         function togglePrivacy() {
             isPrivacyMode = !isPrivacyMode;
             const icon = isPrivacyMode ? "ph ph-eye-slash" : "ph ph-eye";
@@ -467,7 +478,7 @@
         function exportBackup() { 
             const a = document.createElement('a'); 
             a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries)); 
-            a.download = "portfolio_v12_backup.json"; a.click(); 
+            a.download = "portfolio_backup.json"; a.click(); 
         }
 
         function updateModalLabels() { if(els.inpCat.value==='etf') { if(!els.inpProd.value) els.inpProd.value="Core MSCI World USD (Acc)"; } }
