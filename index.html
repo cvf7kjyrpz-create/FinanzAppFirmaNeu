@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V12.1</title>
+    <title>Portfolio V12.2</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -52,16 +52,15 @@
 <body class="h-screen overflow-hidden bg-black text-white">
 
     <div id="viewDashboard" class="view-section active px-5 pt-12 pb-8">
-        
         <div class="flex justify-between items-center mb-8 shrink-0">
-            <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white transition-colors">
+            <button onclick="togglePrivacy()" class="p-2 -ml-2 text-gray-500 hover:text-white transition-colors">
                 <i id="iconPrivacy" class="ph ph-eye text-2xl"></i>
             </button>
             <div class="flex gap-4">
-                <button onclick="fetchAllPrices()" class="text-gray-500 hover:text-white transition-colors">
+                <button onclick="fetchAllPrices()" class="p-2 text-gray-500 hover:text-white transition-colors">
                     <i id="iconRefresh" class="ph ph-arrows-clockwise text-2xl"></i>
                 </button>
-                <button onclick="openSettings()" class="text-gray-500 hover:text-white transition-colors">
+                <button onclick="openSettings()" class="p-2 text-gray-500 hover:text-white transition-colors">
                     <i class="ph ph-gear text-2xl"></i>
                 </button>
             </div>
@@ -105,7 +104,6 @@
             <button onclick="openModal()" class="w-full h-12 bg-white text-black rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
                 Neuer Eintrag
             </button>
-            
             <button onclick="switchView('history')" class="w-full h-12 bg-transparent border border-[#333] text-gray-400 rounded-lg text-xs font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors">
                 Historie Ansehen
             </button>
@@ -128,7 +126,6 @@
                 </button>
             </div>
         </div>
-
         <div class="flex-1 overflow-hidden flex flex-col">
             <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-4"></div>
         </div>
@@ -141,15 +138,14 @@
                 <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
             <div class="space-y-3">
-                <div class="text-[10px] text-gray-600 uppercase font-bold mb-2">Datenverwaltung</div>
-                <button onclick="exportBackup()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
+                <button onclick="exportBackup()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2">
                     <i class="ph ph-download-simple"></i> Backup Speichern
                 </button>
-                <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2 hover:bg-[#252525]">
+                <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2">
                     <i class="ph ph-upload-simple"></i> Backup Laden
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
-                <div class="text-[9px] text-gray-700 text-center mt-2">Alles bleibt auf diesem Gerät.</div>
+                <div class="text-[9px] text-gray-700 text-center mt-2">Daten bleiben lokal auf deinem Gerät.</div>
             </div>
         </div>
     </div>
@@ -204,7 +200,6 @@
     </div>
 
     <script>
-        // DATA
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
         let prices = JSON.parse(localStorage.getItem('portfolio_prices_v12')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
         let isPrivacyMode = false;
@@ -230,113 +225,45 @@
             btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight')
         };
 
-        // INITIALIZE
-        function init() {
-            render();
-            fetchAllPrices();
-        }
-        document.addEventListener("DOMContentLoaded", init);
-
-        // LOGIC
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            if(viewName === 'history') {
-                document.getElementById('viewHistory').classList.add('active');
-                renderList();
-            } else {
-                document.getElementById('viewDashboard').classList.add('active');
-                render();
-            }
-        }
-        
-        function togglePrivacy() {
-            isPrivacyMode = !isPrivacyMode;
-            const iconClass = isPrivacyMode ? "ph ph-eye-slash text-2xl" : "ph ph-eye text-2xl";
-            const iconClassSmall = isPrivacyMode ? "ph ph-eye-slash text-xl" : "ph ph-eye text-xl";
-            if(els.iconPrivacy) els.iconPrivacy.className = iconClass;
-            if(els.iconPrivacyHistory) els.iconPrivacyHistory.className = iconClassSmall;
-            
-            // Wichtig: Beide Ansichten aktualisieren
-            render(); 
-            if(document.getElementById('viewHistory').classList.contains('active')) {
-                renderList();
-            }
-        }
-
-        async function fetchAllPrices() {
-            const icon = document.getElementById('iconRefresh');
-            if(icon) icon.classList.add('ph-spinner', 'spin-slow');
-            
-            const fetchSafe = async (symbol) => {
-                try {
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const res = await fetch(proxyUrl);
-                    const data = await res.json();
-                    return JSON.parse(data.contents).chart.result[0].meta.regularMarketPrice;
-                } catch(e) { return null; }
-            };
-
-            const [g, s, e] = await Promise.all([
-                fetchSafe('XAUEUR=X'), fetchSafe('XAGEUR=X'), fetchSafe('EUNL.DE')
-            ]);
-
-            if(g) prices.gold = g / 31.1034768; 
-            if(s) prices.silver = s / 31.1034768;
-            if(e) prices.etf = e;
-
-            prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-            localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
-            
-            render();
-            if(icon) icon.classList.remove('ph-spinner', 'spin-slow');
-        }
-
         function render() {
-            try {
-                let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
+            let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
 
-                if(entries.length === 0) {
-                    els.sinceDate.innerText = "Keine Daten";
-                } else {
-                    const validEntries = entries.filter(e => e.date && !isNaN(new Date(e.date).getTime()));
-                    if(validEntries.length > 0) {
-                        const sorted = [...validEntries].sort((a,b) => new Date(a.date) - new Date(b.date));
-                        els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
-                    }
+            if(entries.length === 0) els.sinceDate.innerText = "Keine Daten";
+            else {
+                const valid = entries.filter(e => !isNaN(new Date(e.date).getTime()));
+                if(valid.length > 0) {
+                    const sorted = [...valid].sort((a,b) => new Date(a.date) - new Date(b.date));
+                    els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
                 }
-                els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
+            }
+            els.lastUpdate.innerText = "Stand: " + (prices.lastUpdate || 'Nie');
 
-                entries.forEach(e => {
-                    tInv += (e.amount || 0);
-                    let p = 0;
-                    if(e.category === 'gold') p = prices.gold;
-                    else if(e.category === 'silver') p = prices.silver;
-                    else p = prices.etf;
-                    
-                    let val = (p > 0) ? (e.weight || 0) * p : (e.amount || 0);
-                    
-                    if(e.category === 'gold') { gVal += val; gInv += e.amount; }
-                    else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
-                    else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
-                    tVal += val;
-                });
-
-                els.totalVal.innerText = fmt(tVal);
-                const totalPL = tVal - tInv;
-                const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
+            entries.forEach(e => {
+                tInv += (e.amount || 0);
+                let p = 0;
+                if(e.category === 'gold') p = prices.gold;
+                else if(e.category === 'silver') p = prices.silver;
+                else p = prices.etf;
                 
-                els.plDisplay.innerText = (totalPL >= 0 ? "+" : "") + fmt(totalPL);
-                els.plPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
-                
-                const col = totalPL >= 0 ? "text-green-500" : "text-red-500";
-                els.plDisplay.className = "text-xs " + col;
-                els.plPercent.className = "text-xs font-bold " + col;
+                let val = (p > 0) ? (e.weight || 0) * p : (e.amount || 0);
+                if(e.category === 'gold') { gVal += val; gInv += e.amount; }
+                else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
+                else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
+                tVal += val;
+            });
 
-                updateCard(els.goldVal, els.goldPL, gVal, gInv);
-                updateCard(els.silverVal, els.silverPL, sVal, sInv);
-                updateCard(els.etfVal, els.etfPL, eVal, eInv);
-            } catch(err) { console.error("Render Error", err); }
+            els.totalVal.innerText = fmt(tVal);
+            const diff = tVal - tInv;
+            const pct = tInv > 0 ? (diff/tInv)*100 : 0;
+            els.plDisplay.innerText = (diff >= 0 ? "+" : "") + fmt(diff);
+            els.plPercent.innerText = (diff >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+            const col = diff >= 0 ? "text-green-500" : "text-red-500";
+            els.plDisplay.className = "text-xs " + col;
+            els.plPercent.className = "text-xs font-bold " + col;
+
+            updateCard(els.goldVal, els.goldPL, gVal, gInv);
+            updateCard(els.silverVal, els.silverPL, sVal, sInv);
+            updateCard(els.etfVal, els.etfPL, eVal, eInv);
         }
 
         function renderList() {
@@ -345,37 +272,25 @@
                 els.list.innerHTML = '<div class="text-center text-gray-700 text-xs mt-10">Keine Daten</div>';
                 return;
             }
-
             entries.forEach(e => {
-                let p = 0;
-                if(e.category === 'gold') p = prices.gold;
-                else if(e.category === 'silver') p = prices.silver;
-                else p = prices.etf;
-
-                const val = (p > 0) ? (e.weight || 0) * p : (e.amount || 0);
-                const pl = val - (e.amount || 0);
+                let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
+                const val = (p > 0) ? (e.weight * p) : e.amount;
+                const pl = val - e.amount;
                 const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
                 const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
                 
-                const dateStr = e.date ? new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'}) : '--';
-                let catLabel = e.category === 'etf' ? 'ETF' : (e.category === 'gold' ? 'Gold' : 'Silber');
-
                 const el = document.createElement('div');
                 el.onclick = () => openModal(e.id);
                 el.className = 'border-b border-[#222] pb-3 last:border-0 cursor-pointer';
                 el.innerHTML = `
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-white text-sm font-medium">${e.product || 'Eintrag'}</span>
+                        <span class="text-white text-sm font-medium">${e.product}</span>
                         <span class="text-white text-sm font-light">${fmt(val)}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <div class="text-[10px] text-gray-500 flex gap-2">
-                            <span class="uppercase tracking-wider">${catLabel}</span>
-                            <span>•</span>
-                            <span>${dateStr}</span>
-                        </div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-wider">${e.category} • ${new Date(e.date).toLocaleDateString('de-DE')}</div>
                         <div class="flex gap-2 text-[10px]">
-                            <span class="text-gray-600">${fmt(e.amount || 0)}</span>
+                            <span class="text-gray-600">${fmt(e.amount)}</span>
                             <span class="${col}">${pl >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>
                         </div>
                     </div>
@@ -384,90 +299,35 @@
             });
         }
 
-        function updateCard(elVal, elPL, curr, inv) {
-            const diff = curr - inv;
-            const pct = inv > 0 ? (diff/inv)*100 : 0;
-            elVal.innerText = fmt(curr);
-            elPL.innerText = (diff >= 0 ? "+" : "") + pct.toFixed(1) + "%";
-            elPL.className = diff >= 0 ? "text-[9px] text-green-500" : "text-[9px] text-red-500";
+        function togglePrivacy() {
+            isPrivacyMode = !isPrivacyMode;
+            const icon = isPrivacyMode ? "ph ph-eye-slash" : "ph ph-eye";
+            els.iconPrivacy.className = icon + " text-2xl";
+            if(els.iconPrivacyHistory) els.iconPrivacyHistory.className = icon + " text-xl";
+            render();
+            if(document.getElementById('viewHistory').classList.contains('active')) renderList();
         }
 
-        function openModal(id = null) {
-            currentEditId = id;
-            els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
-            if(id) {
-                const e = entries.find(x => x.id === id);
-                document.getElementById('modalTitle').innerText = "Bearbeiten";
-                els.btnDelete.classList.remove('hidden');
-                els.inpCat.value = e.category; els.inpProd.value = e.product;
-                els.inpAmt.value = e.amount; els.inpWgt.value = e.weight;
-                els.inpLoc.value = e.location || ''; els.inpDate.value = e.date;
-            } else {
-                document.getElementById('modalTitle').innerText = "Neuer Eintrag";
-                els.btnDelete.classList.add('hidden');
-                els.inpCat.value = 'gold'; els.inpProd.value = '';
-                els.inpAmt.value = ''; els.inpWgt.value = '';
-                els.inpLoc.value = ''; els.inpDate.value = new Date().toISOString().split('T')[0];
-            }
-            updateModalLabels();
-        }
-        function closeModal() { els.modal.classList.add('hidden'); els.modal.classList.remove('flex'); currentEditId = null; }
-        
-        function updateModalLabels() {
-            if(els.inpCat.value === 'etf') { 
-                els.lblWeight.innerText = "Anzahl (Stk)"; 
-                if(els.inpProd.value === '') els.inpProd.value = "Core MSCI World USD (Acc)";
-            } else { 
-                els.lblWeight.innerText = "Gewicht (g)"; 
-                if(els.inpProd.value === "Core MSCI World USD (Acc)") els.inpProd.value = "";
-            }
-        }
-        
-        function saveEntry() {
-            const amt = parseFloat(els.inpAmt.value);
-            const wgt = parseFloat(els.inpWgt.value);
-            if(isNaN(amt)) { alert("Bitte Preis eingeben"); return; }
-            
-            const cat = els.inpCat.value;
-            let prod = els.inpProd.value.trim();
-            if(!prod) prod = cat === 'etf' ? "Core MSCI World USD (Acc)" : (cat==='gold'?"Gold":"Silber");
-
-            const item = {
-                id: currentEditId || Date.now(),
-                amount: amt, weight: wgt || 0, category: cat,
-                product: prod, location: els.inpLoc.value.trim(), date: els.inpDate.value
+        async function fetchAllPrices() {
+            const icon = document.getElementById('iconRefresh');
+            icon.classList.add('ph-spinner', 'spin-slow');
+            const f = async (s) => {
+                try {
+                    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${s}?interval=1d&range=1d`)}`);
+                    const d = await r.json();
+                    return JSON.parse(d.contents).chart.result[0].meta.regularMarketPrice;
+                } catch { return null; }
             };
-
-            if(currentEditId) {
-                const idx = entries.findIndex(x => x.id === currentEditId);
-                entries[idx] = item;
-            } else {
-                entries.unshift(item);
-            }
-            entries.sort((a,b) => new Date(b.date) - new Date(a.date));
-            localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
-            
-            render(); renderList(); closeModal();
+            const [g, s, e] = await Promise.all([f('XAUEUR=X'), f('XAGEUR=X'), f('EUNL.DE')]);
+            if(g) prices.gold = g / 31.1034768;
+            if(s) prices.silver = s / 31.1034768;
+            if(e) prices.etf = e;
+            prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+            localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
+            render();
+            icon.classList.remove('ph-spinner', 'spin-slow');
         }
 
-        function deleteCurrentEntry() {
-            if(confirm("Eintrag wirklich löschen?")) {
-                entries = entries.filter(x => x.id !== currentEditId);
-                localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
-                render(); renderList(); closeModal();
-            }
-        }
-
-        function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
-        function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
-
-        function exportBackup() {
-            const d = {entries, prices, version:'v12'};
-            const a = document.createElement('a');
-            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
-            a.download = "portfolio_backup.json"; a.click();
-        }
-        
         function importBackup(inp) {
             const f = inp.files[0];
             if(!f) return;
@@ -475,20 +335,49 @@
             r.onload = e => {
                 try {
                     const d = JSON.parse(e.target.result);
-                    if(confirm("Daten überschreiben?")) {
-                        if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); }
+                    // Unterstützung für dein spezifisches Backup-Format (Array)
+                    const data = Array.isArray(d) ? d : (d.entries || []);
+                    if(data.length > 0 && confirm(`${data.length} Einträge laden?`)) {
+                        entries = data;
+                        localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
                         location.reload();
                     }
-                } catch(err) { alert("Fehler beim Laden"); }
+                } catch { alert("Fehler beim Laden"); }
             };
             r.readAsText(f);
         }
-        
-        function fmt(n) { 
-            if(isPrivacyMode) return '•••• €';
-            if(isNaN(n)) return '0,00 €';
-            return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); 
+
+        function fmt(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
+        function updateCard(v, p, c, i) { v.innerText = fmt(c); const d = c - i; p.innerText = (d>=0?"+":"")+(i>0?(d/i*100):0).toFixed(1)+"%"; p.className = d>=0?"text-[9px] text-green-500":"text-[9px] text-red-500"; }
+        function switchView(v) { document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); document.getElementById(v==='history'?'viewHistory':'viewDashboard').classList.add('active'); if(v==='history') renderList(); else render(); }
+        function openSettings() { els.settingsModal.classList.replace('hidden', 'flex'); }
+        function closeSettings() { els.settingsModal.classList.replace('flex', 'hidden'); }
+        function openModal(id=null) { 
+            currentEditId = id; 
+            els.modal.classList.replace('hidden', 'flex');
+            if(id) { 
+                const e = entries.find(x => x.id === id); 
+                els.inpCat.value = e.category; els.inpProd.value = e.product; els.inpAmt.value = e.amount; els.inpWgt.value = e.weight; els.inpLoc.value = e.location; els.inpDate.value = e.date;
+                els.btnDelete.classList.remove('hidden');
+            } else {
+                els.inpCat.value = 'gold'; els.inpProd.value = ''; els.inpAmt.value = ''; els.inpWgt.value = ''; els.inpDate.value = new Date().toISOString().split('T')[0];
+                els.btnDelete.classList.add('hidden');
+            }
+            updateModalLabels();
         }
+        function closeModal() { els.modal.classList.replace('flex', 'hidden'); }
+        function updateModalLabels() { if(els.inpCat.value==='etf') { els.lblWeight.innerText="Anzahl (Stk)"; if(!els.inpProd.value) els.inpProd.value="Core MSCI World USD (Acc)"; } else { els.lblWeight.innerText="Gewicht (g)"; if(els.inpProd.value==="Core MSCI World USD (Acc)") els.inpProd.value=""; } }
+        function saveEntry() {
+            const item = { id: currentEditId || Date.now(), amount: parseFloat(els.inpAmt.value), weight: parseFloat(els.inpWgt.value) || 0, category: els.inpCat.value, product: els.inpProd.value || "Produkt", location: els.inpLoc.value, date: els.inpDate.value };
+            if(currentEditId) entries[entries.findIndex(x => x.id === currentEditId)] = item; else entries.unshift(item);
+            entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+            localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
+            render(); renderList(); closeModal();
+        }
+        function deleteCurrentEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== currentEditId); localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); render(); renderList(); closeModal(); } }
+        function exportBackup() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries)); a.download = "portfolio_backup.json"; a.click(); }
+        
+        document.addEventListener("DOMContentLoaded", () => { render(); fetchAllPrices(); });
     </script>
 </body>
 </html>
