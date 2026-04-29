@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V17</title>
+    <title>Portfolio V18</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -82,17 +82,17 @@
         </div>
 
         <div class="grid grid-cols-3 gap-3 mb-6 shrink-0">
-            <div class="bg-[#111] border border-[#222] rounded-lg p-3 text-center">
+            <div onclick="switchView('history', 'gold')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors">
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Gold</p>
                 <p id="goldVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
                 <p id="goldPL" class="text-[9px] text-gray-600">0%</p>
             </div>
-            <div class="bg-[#111] border border-[#222] rounded-lg p-3 text-center">
+            <div onclick="switchView('history', 'silver')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors">
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Silber</p>
                 <p id="silverVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
                 <p id="silverPL" class="text-[9px] text-gray-600">0%</p>
             </div>
-            <div class="bg-[#111] border border-[#222] rounded-lg p-3 text-center">
+            <div onclick="switchView('history', 'etf')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors">
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">ETF</p>
                 <p id="etfVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
                 <p id="etfPL" class="text-[9px] text-gray-600">0%</p>
@@ -122,8 +122,8 @@
             <button onclick="openModal()" class="w-full h-12 bg-white text-black rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
                 Neuer Eintrag
             </button>
-            <button onclick="switchView('history')" class="w-full h-12 bg-transparent border border-[#333] text-gray-400 rounded-lg text-xs font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors">
-                Historie Ansehen
+            <button onclick="switchView('history', 'all')" class="w-full h-12 bg-transparent border border-[#333] text-gray-400 rounded-lg text-xs font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors">
+                Gesamte Historie
             </button>
         </div>
         
@@ -134,7 +134,7 @@
 
     <div id="viewHistory" class="view-section px-5 pt-12 pb-8 bg-black">
         <div class="flex items-center justify-between mb-6 shrink-0">
-            <span class="text-sm font-bold uppercase tracking-widest text-gray-500">Alle Käufe</span>
+            <span id="historyTitle" class="text-sm font-bold uppercase tracking-widest text-gray-500">Alle Käufe</span>
             <button onclick="switchView('dashboard')" class="text-white hover:text-gray-400">
                 <i class="ph ph-x text-xl"></i>
             </button>
@@ -222,6 +222,7 @@
         let prices = JSON.parse(localStorage.getItem('portfolio_prices_v12')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
         let isPrivacyMode = true; // STARTET VERSTECKT
         let currentEditId = null;
+        let currentFilter = 'all'; // Speichert, welche Historie gerade aktiv ist
 
         // UI ELEMENTS
         const els = {
@@ -238,6 +239,7 @@
             mGold: document.getElementById('marketGold'),
             mSilver: document.getElementById('marketSilver'),
             mETF: document.getElementById('marketETF'),
+            historyTitle: document.getElementById('historyTitle'),
             modal: document.getElementById('entryModal'),
             settingsModal: document.getElementById('settingsModal'),
             inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
@@ -251,11 +253,15 @@
         document.addEventListener("DOMContentLoaded", fetchAllPrices);
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
 
-        // VIEW & PRIVACY LOGIC
-        function switchView(viewName) {
+        // VIEW & PRIVACY LOGIC (MIT FILTER)
+        function switchView(viewName, filter = 'all') {
+            currentFilter = filter;
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if(viewName === 'history') {
                 document.getElementById('viewHistory').classList.add('active');
+                // Setze den Titel je nach Filter
+                const titles = { all: 'Gesamte Historie', gold: 'Gold Historie', silver: 'Silber Historie', etf: 'ETF Historie' };
+                els.historyTitle.innerText = titles[filter];
                 renderList();
             } else {
                 document.getElementById('viewDashboard').classList.add('active');
@@ -272,7 +278,7 @@
         function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
         function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
 
-        // FETCH-FUNKTION
+        // FETCH-FUNKTION (MIT PROXY-KASKADE FÜR ETF)
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             if(icon) icon.classList.add('ph-spinner', 'spin-slow');
@@ -282,7 +288,7 @@
             els.mSilver.innerText = "Lade...";
             els.mETF.innerText = "Lade...";
 
-            // 1. GOLD & SILBER - Ohne Yahoo (Direkt API)
+            // 1. GOLD & SILBER - Ohne Yahoo (Extrem zuverlässig!)
             try {
                 const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json');
                 const data = await res.json();
@@ -291,8 +297,8 @@
                     const pricePerOzGold = 1 / data.eur.xau;
                     const pricePerOzSilver = 1 / data.eur.xag;
                     
-                    prices.gold = pricePerOzGold / 31.1034768;   // Umrechnung in Gramm
-                    prices.silver = pricePerOzSilver / 31.1034768; // Umrechnung in Gramm
+                    prices.gold = pricePerOzGold / 31.1034768;   
+                    prices.silver = pricePerOzSilver / 31.1034768; 
                     
                     els.mGold.innerText = prices.gold.toFixed(2) + " €";
                     els.mSilver.innerText = prices.silver.toFixed(2) + " €";
@@ -305,25 +311,46 @@
                 els.mSilver.innerText = "Fehler";
             }
 
-            // 2. ETF (Core MSCI World) - Originale Methode via AllOrigins/GET (die immer funktioniert hat)
+            // 2. ETF (Core MSCI World) - Ausfallsystem mit 4 verschiedenen Abfrage-Wegen
             try {
                 const url = 'https://query1.finance.yahoo.com/v8/finance/chart/EUNL.DE?interval=1d&range=1d';
-                // Wichtig: Wir nutzen wieder /get anstatt /raw, exakt wie in deiner ersten Datei
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&ts=${Date.now()}`;
-                
-                const res = await fetch(proxyUrl);
-                const data = await res.json();
-                
-                if (data && data.contents) {
-                    const json = JSON.parse(data.contents);
-                    if (json.chart && json.chart.result && json.chart.result[0]) {
-                        prices.etf = json.chart.result[0].meta.regularMarketPrice;
-                        els.mETF.innerText = prices.etf.toFixed(2) + " €";
-                    } else {
-                        throw new Error("Preis in JSON nicht gefunden");
+                let etfPrice = null;
+
+                // Liste aller möglichen Proxys. Er probiert sie nacheinander durch, bis einer klappt.
+                const proxies = [
+                    `https://api.codetabs.com/v1/proxy?quest=${url}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&ts=${Date.now()}`,
+                    `https://corsproxy.io/?${encodeURIComponent(url)}`
+                ];
+
+                for (let proxy of proxies) {
+                    try {
+                        const res = await fetch(proxy);
+                        const data = await res.json();
+                        if (data?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+                            etfPrice = data.chart.result[0].meta.regularMarketPrice;
+                            break; // Gefunden! Stoppe die Suche.
+                        }
+                    } catch(err) { continue; } // Fehler? Nächsten Proxy probieren!
+                }
+
+                // Wenn alles andere scheitert, probiere die alte /get Methode von AllOrigins
+                if (!etfPrice) {
+                    const fallbackRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&ts=${Date.now()}`);
+                    const fallbackData = await fallbackRes.json();
+                    if(fallbackData && fallbackData.contents) {
+                        const json = JSON.parse(fallbackData.contents);
+                        if(json.chart && json.chart.result && json.chart.result[0]) {
+                            etfPrice = json.chart.result[0].meta.regularMarketPrice;
+                        }
                     }
+                }
+
+                if(etfPrice) {
+                    prices.etf = etfPrice;
+                    els.mETF.innerText = prices.etf.toFixed(2) + " €";
                 } else {
-                    throw new Error("Leere Antwort von AllOrigins");
+                    throw new Error("Alle Proxys blockiert");
                 }
             } catch (e) {
                 console.error("Fehler ETF:", e);
@@ -388,12 +415,18 @@
 
         function renderList() {
             els.list.innerHTML = '';
-            if(entries.length === 0) {
-                els.list.innerHTML = '<div class="text-center text-gray-700 text-xs mt-10">Keine Daten</div>';
+            
+            // FILTER-FUNKTION HIER ANGEWENDET
+            const filteredEntries = currentFilter === 'all' 
+                ? entries 
+                : entries.filter(e => e.category === currentFilter);
+
+            if(filteredEntries.length === 0) {
+                els.list.innerHTML = '<div class="text-center text-gray-700 text-xs mt-10">Keine Einträge gefunden.</div>';
                 return;
             }
 
-            entries.forEach(e => {
+            filteredEntries.forEach(e => {
                 let p = 0;
                 if(e.category === 'gold') p = prices.gold;
                 else if(e.category === 'silver') p = prices.silver;
@@ -526,7 +559,6 @@
                 try {
                     const d = JSON.parse(e.target.result);
                     if(confirm("Daten überschreiben?")) {
-                        // AKZEPTIERT BEIDE BACKUP ARTEN!
                         if(Array.isArray(d)) {
                             entries = d;
                             localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
