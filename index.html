@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V16</title>
+    <title>Portfolio V17</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -272,7 +272,7 @@
         function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
         function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
 
-        // NEUE, ZUVERLÄSSIGE FETCH-FUNKTION
+        // FETCH-FUNKTION
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             if(icon) icon.classList.add('ph-spinner', 'spin-slow');
@@ -282,9 +282,8 @@
             els.mSilver.innerText = "Lade...";
             els.mETF.innerText = "Lade...";
 
-            // 1. GOLD & SILBER - Ohne Yahoo, ohne Proxy (Extrem zuverlässig!)
+            // 1. GOLD & SILBER - Ohne Yahoo (Direkt API)
             try {
-                // Diese API liefert "Wie viel Gold/Silber bekomme ich für 1 Euro"
                 const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json');
                 const data = await res.json();
                 
@@ -306,35 +305,25 @@
                 els.mSilver.innerText = "Fehler";
             }
 
-            // 2. ETF (Core MSCI World) - Yahoo über Proxy, mit Fallback
+            // 2. ETF (Core MSCI World) - Originale Methode via AllOrigins/GET (die immer funktioniert hat)
             try {
                 const url = 'https://query1.finance.yahoo.com/v8/finance/chart/EUNL.DE?interval=1d&range=1d';
+                // Wichtig: Wir nutzen wieder /get anstatt /raw, exakt wie in deiner ersten Datei
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&ts=${Date.now()}`;
                 
-                // Wir testen erst Proxy 1
-                let fetchSuccess = false;
-                try {
-                    const res1 = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&ts=${Date.now()}`);
-                    const data1 = await res1.json();
-                    if (data1?.chart?.result?.[0]?.meta?.regularMarketPrice) {
-                        prices.etf = data1.chart.result[0].meta.regularMarketPrice;
-                        fetchSuccess = true;
+                const res = await fetch(proxyUrl);
+                const data = await res.json();
+                
+                if (data && data.contents) {
+                    const json = JSON.parse(data.contents);
+                    if (json.chart && json.chart.result && json.chart.result[0]) {
+                        prices.etf = json.chart.result[0].meta.regularMarketPrice;
+                        els.mETF.innerText = prices.etf.toFixed(2) + " €";
+                    } else {
+                        throw new Error("Preis in JSON nicht gefunden");
                     }
-                } catch(e1) {}
-
-                // Wenn Proxy 1 klemmt, nehmen wir Proxy 2 (Codetabs)
-                if (!fetchSuccess) {
-                    const res2 = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`);
-                    const data2 = await res2.json();
-                    if (data2?.chart?.result?.[0]?.meta?.regularMarketPrice) {
-                        prices.etf = data2.chart.result[0].meta.regularMarketPrice;
-                        fetchSuccess = true;
-                    }
-                }
-
-                if(fetchSuccess) {
-                    els.mETF.innerText = prices.etf.toFixed(2) + " €";
                 } else {
-                    els.mETF.innerText = "Fehler";
+                    throw new Error("Leere Antwort von AllOrigins");
                 }
             } catch (e) {
                 console.error("Fehler ETF:", e);
