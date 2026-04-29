@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V12.5</title>
+    <title>Portfolio V12.6</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -41,7 +41,6 @@
         }
         input[type="date"] { color-scheme: dark; }
         
-        /* Animationen */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
@@ -99,19 +98,19 @@
             </div>
         </div>
 
-        <div id="marketBar" class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg py-2 px-4 mb-8 flex justify-between items-center shrink-0">
-            <div class="text-center w-full flex justify-around">
-                <div>
+        <div class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg py-2 px-4 mb-8 shrink-0">
+            <div class="flex justify-around items-center">
+                <div class="text-center">
                     <p class="text-[8px] text-gray-600 uppercase font-bold">Gold (g)</p>
                     <p id="marketGold" class="text-[11px] text-gray-300 font-mono pulse">Lade...</p>
                 </div>
                 <div class="h-4 w-[1px] bg-[#222]"></div>
-                <div>
+                <div class="text-center">
                     <p class="text-[8px] text-gray-600 uppercase font-bold">Silber (g)</p>
                     <p id="marketSilver" class="text-[11px] text-gray-300 font-mono pulse">Lade...</p>
                 </div>
                 <div class="h-4 w-[1px] bg-[#222]"></div>
-                <div>
+                <div class="text-center">
                     <p class="text-[8px] text-gray-600 uppercase font-bold">MSCI World</p>
                     <p id="marketETF" class="text-[11px] text-gray-300 font-mono pulse">Lade...</p>
                 </div>
@@ -121,16 +120,16 @@
         <div class="flex-1"></div>
 
         <div class="space-y-3 shrink-0">
-            <button onclick="openModal()" class="w-full h-12 bg-white text-black rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
+            <button onclick="openModal()" class="w-full h-12 bg-white text-black rounded-lg text-xs font-bold uppercase tracking-widest active:bg-gray-200">
                 Neuer Eintrag
             </button>
-            <button onclick="switchView('history', 'all')" class="w-full h-12 bg-transparent border border-[#333] text-gray-400 rounded-lg text-xs font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors">
+            <button onclick="switchView('history', 'all')" class="w-full h-12 bg-transparent border border-[#333] text-gray-400 rounded-lg text-xs font-bold uppercase tracking-widest active:border-white active:text-white">
                 Gesamte Historie
             </button>
         </div>
         
         <div class="mt-4 text-center pb-safe">
-             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono">Suche Kurse...</span>
+             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono tracking-tighter">Bereit...</span>
         </div>
     </div>
 
@@ -138,10 +137,10 @@
         <div class="flex items-center justify-between mb-6 shrink-0">
             <span id="historyTitle" class="text-sm font-bold uppercase tracking-widest text-gray-500">Historie</span>
             <div class="flex gap-4">
-                <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white transition-colors">
+                <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white">
                     <i id="iconPrivacyHistory" class="ph ph-eye-slash text-xl"></i>
                 </button>
-                <button onclick="switchView('dashboard')" class="text-white hover:text-gray-400">
+                <button onclick="switchView('dashboard')" class="text-white">
                     <i class="ph ph-x text-xl"></i>
                 </button>
             </div>
@@ -154,8 +153,8 @@
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
         <div class="bg-[#111] border border-[#333] w-full max-w-xs rounded-xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-white font-medium text-sm uppercase tracking-widest">Einstellungen</h3>
-                <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
+                <h3 class="text-white font-medium text-sm uppercase tracking-widest">Setup</h3>
+                <button onclick="closeSettings()" class="text-gray-500"><i class="ph ph-x text-lg"></i></button>
             </div>
             <div class="space-y-3">
                 <button onclick="exportBackup()" class="w-full py-3 bg-[#1c1c1e] border border-[#333] rounded text-xs text-gray-300 flex items-center justify-center gap-2">
@@ -170,55 +169,56 @@
     </div>
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-end sm:items-center justify-center p-4">
-        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6 shadow-2xl">
+        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6">
             <div class="flex justify-between items-center mb-8">
                 <h3 id="modalTitle" class="text-white font-medium text-sm uppercase tracking-widest">Eintrag</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
+                <button onclick="closeModal()" class="text-gray-500"><i class="ph ph-x text-lg"></i></button>
             </div>
             <div class="space-y-6">
                 <div class="flex gap-4">
                     <div class="w-1/3">
-                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Typ</label>
-                        <select id="inpCat" onchange="updateModalLabels()" class="w-full py-2 text-sm text-center">
+                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Typ</label>
+                        <select id="inpCat" onchange="updateModalLabels()" class="w-full py-2 text-sm">
                             <option value="gold">Gold</option>
                             <option value="silver">Silber</option>
                             <option value="etf">ETF</option>
                         </select>
                     </div>
                     <div class="w-2/3">
-                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Produkt</label>
-                        <input type="text" id="inpProd" placeholder="Name" class="w-full py-2 text-sm">
+                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Produkt</label>
+                        <input type="text" id="inpProd" class="w-full py-2 text-sm">
                     </div>
                 </div>
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Kaufpreis (€)</label>
-                        <input type="number" id="inpAmt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full py-2 text-lg font-medium">
+                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Preis (€)</label>
+                        <input type="number" id="inpAmt" step="0.01" inputmode="decimal" class="w-full py-2 text-lg">
                     </div>
                     <div class="w-1/2">
-                        <label id="lblWeight" class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Gewicht / Stk</label>
-                        <input type="number" id="inpWgt" placeholder="0.00" step="0.0001" inputmode="decimal" class="w-full py-2 text-lg font-medium">
+                        <label id="lblWeight" class="text-[9px] text-gray-500 uppercase mb-1 block">Gewicht / Stk</label>
+                        <input type="number" id="inpWgt" step="0.0001" inputmode="decimal" class="w-full py-2 text-lg">
                     </div>
                 </div>
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Ort</label>
-                        <input type="text" id="inpLoc" placeholder="Händler" class="w-full py-2 text-sm">
+                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Händler</label>
+                        <input type="text" id="inpLoc" class="w-full py-2 text-sm">
                     </div>
                     <div class="w-1/2">
-                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Datum</label>
-                        <input type="date" id="inpDate" class="w-full py-2 text-xs text-center">
+                        <label class="text-[9px] text-gray-500 uppercase mb-1 block">Datum</label>
+                        <input type="date" id="inpDate" class="w-full py-2 text-xs">
                     </div>
                 </div>
             </div>
             <div class="mt-8 flex gap-3">
-                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-10 border border-red-900 text-red-700 text-xs font-bold uppercase tracking-widest rounded">Löschen</button>
-                <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black text-xs font-bold uppercase tracking-widest rounded">Speichern</button>
+                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-10 border border-red-900 text-red-700 text-xs font-bold uppercase rounded">Löschen</button>
+                <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black text-xs font-bold uppercase rounded">Speichern</button>
             </div>
         </div>
     </div>
 
     <script>
+        // INIT DATA
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
         let prices = { gold: 0, silver: 0, etf: 0, lastUpdate: '--:--' };
         let isPrivacyMode = true; 
@@ -249,59 +249,76 @@
             mETF: document.getElementById('marketETF')
         };
 
+        // ROBUSTER PREIS-ABRUF
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             if(icon) icon.classList.add('ph-spinner', 'spin-slow');
-            els.lastUpdate.innerText = "Aktualisiere Kurse...";
             
-            // Pulsieren starten
-            els.mGold.classList.add('pulse');
-            els.mSilver.classList.add('pulse');
-            els.mETF.classList.add('pulse');
+            els.lastUpdate.innerText = "Sende Anfrage...";
+            els.mGold.innerText = "Lade..."; els.mGold.classList.add('pulse');
+            els.mSilver.innerText = "Lade..."; els.mSilver.classList.add('pulse');
+            els.mETF.innerText = "Lade..."; els.mETF.classList.add('pulse');
 
-            const fetchTicker = async (ticker) => {
+            const fetchWithTimeout = async (ticker) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 Sek Timeout
+
                 try {
-                    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`)}`);
-                    const d = await r.json();
-                    return JSON.parse(d.contents).chart.result[0].meta.regularMarketPrice;
-                } catch(e) { 
-                    console.error("Fehler bei Ticker " + ticker, e);
-                    return 0; 
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`)}&ts=${Date.now()}`;
+                    const response = await fetch(proxyUrl, { signal: controller.signal });
+                    if (!response.ok) throw new Error("Netzwerkfehler");
+                    
+                    const data = await response.json();
+                    const json = JSON.parse(data.contents);
+                    return json.chart.result[0].meta.regularMarketPrice;
+                } catch (e) {
+                    console.error(`Fehler bei ${ticker}:`, e);
+                    return null;
+                } finally {
+                    clearTimeout(timeoutId);
                 }
             };
 
-            // Paralleles Laden
+            // Abruf starten
             const [g, s, e] = await Promise.all([
-                fetchTicker('XAUEUR=X'),
-                fetchTicker('XAGEUR=X'),
-                fetchTicker('EUNL.DE')
+                fetchWithTimeout('XAUEUR=X'),
+                fetchWithTimeout('XAGEUR=X'),
+                fetchWithTimeout('EUNL.DE')
             ]);
 
-            // Ergebnisse verarbeiten
-            if(g) { prices.gold = g / 31.1034768; els.mGold.innerText = (g/31.1034768).toFixed(2) + " €"; }
-            if(s) { prices.silver = s / 31.1034768; els.mSilver.innerText = (s/31.1034768).toFixed(2) + " €"; }
-            if(e) { prices.etf = e; els.mETF.innerText = e.toFixed(2) + " €"; }
+            // Ergebnisse verarbeiten oder Fehler anzeigen
+            if(g) { prices.gold = g / 31.1034768; els.mGold.innerText = prices.gold.toFixed(2) + " €"; els.mGold.classList.remove('pulse'); } 
+            else { els.mGold.innerText = "Timeout"; els.mGold.classList.remove('pulse'); }
 
-            // Animationen stoppen
-            els.mGold.classList.remove('pulse');
-            els.mSilver.classList.remove('pulse');
-            els.mETF.classList.remove('pulse');
+            if(s) { prices.silver = s / 31.1034768; els.mSilver.innerText = prices.silver.toFixed(2) + " €"; els.mSilver.classList.remove('pulse'); } 
+            else { els.mSilver.innerText = "Timeout"; els.mSilver.classList.remove('pulse'); }
+
+            if(e) { prices.etf = e; els.mETF.innerText = e.toFixed(2) + " €"; els.mETF.classList.remove('pulse'); } 
+            else { els.mETF.innerText = "Timeout"; els.mETF.classList.remove('pulse'); }
 
             prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-            els.lastUpdate.innerText = "Kurs-Update: " + prices.lastUpdate;
+            els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
             
             render();
             if(icon) icon.classList.remove('ph-spinner', 'spin-slow');
         }
 
+        // BERECHNUNG & ANZEIGE
         function render() {
             let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
 
             entries.forEach(e => {
                 const inv = parseFloat(e.amount) || 0;
+                const w = parseFloat(e.weight) || 0;
                 tInv += inv;
-                let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
-                let val = (p > 0) ? (parseFloat(e.weight) || 0) * p : inv;
+                
+                let currentP = 0;
+                if(e.category === 'gold') currentP = prices.gold;
+                else if(e.category === 'silver') currentP = prices.silver;
+                else if(e.category === 'etf') currentP = prices.etf;
+                
+                // Falls Preis noch 0 ist (Ladefehler), nutze den Kaufpreis als Wert (0% Änderung)
+                let val = (currentP > 0) ? (w * currentP) : inv;
                 
                 if(e.category === 'gold') { gVal += val; gInv += inv; }
                 else if(e.category === 'silver') { sVal += val; sInv += inv; }
@@ -326,10 +343,8 @@
 
         function renderList() {
             els.list.innerHTML = '';
-            const titles = { all: 'Gesamte Historie', gold: 'Gold Historie', silver: 'Silber Historie', etf: 'ETF Historie' };
-            els.historyTitle.innerText = titles[currentFilter];
             const filtered = currentFilter === 'all' ? entries : entries.filter(e => e.category === currentFilter);
-
+            
             filtered.forEach(e => {
                 let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
                 const val = (p > 0) ? (e.weight * p) : e.amount;
@@ -337,14 +352,14 @@
                 
                 const el = document.createElement('div');
                 el.onclick = () => openModal(e.id);
-                el.className = 'border-b border-[#222] pb-3 last:border-0 cursor-pointer';
+                el.className = 'border-b border-[#222] pb-3 last:border-0 active:opacity-50';
                 el.innerHTML = `
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-white text-sm font-medium">${e.product}</span>
                         <span class="text-white text-sm font-light">${fmt(val)}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <div class="text-[10px] text-gray-500 uppercase tracking-wider">${e.category} • ${new Date(e.date).toLocaleDateString('de-DE')}</div>
+                        <div class="text-[10px] text-gray-500 uppercase">${e.category} • ${new Date(e.date).toLocaleDateString('de-DE')}</div>
                         <div class="flex gap-2 text-[10px]">
                             <span class="text-gray-600">${fmt(e.amount)}</span>
                             <span class="${plP >= 0 ? 'text-green-500' : 'text-red-500'}">${plP >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>
@@ -355,6 +370,7 @@
             });
         }
 
+        // TOOLS
         function togglePrivacy() {
             isPrivacyMode = !isPrivacyMode;
             const icon = isPrivacyMode ? "ph ph-eye-slash" : "ph ph-eye";
@@ -383,6 +399,8 @@
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             if(view === 'history') {
                 document.getElementById('viewHistory').classList.add('active');
+                const titles = { all: 'Historie', gold: 'Gold', silver: 'Silber', etf: 'ETF' };
+                els.historyTitle.innerText = titles[currentFilter];
                 renderList();
             } else {
                 document.getElementById('viewDashboard').classList.add('active');
@@ -405,6 +423,9 @@
             }
             updateModalLabels();
         }
+        function closeModal() { els.modal.classList.replace('flex', 'hidden'); }
+        function openSettings() { els.settingsModal.classList.replace('hidden', 'flex'); }
+        function closeSettings() { els.settingsModal.classList.replace('flex', 'hidden'); }
 
         function saveEntry() {
             const item = { 
@@ -412,7 +433,7 @@
                 amount: parseFloat(els.inpAmt.value) || 0, 
                 weight: parseFloat(els.inpWgt.value) || 0, 
                 category: els.inpCat.value, 
-                product: els.inpProd.value || "Produkt", 
+                product: els.inpProd.value || "Eintrag", 
                 location: els.inpLoc.value, 
                 date: els.inpDate.value 
             };
@@ -423,6 +444,8 @@
             render(); renderList(); closeModal();
         }
 
+        function deleteCurrentEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== currentEditId); localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); render(); renderList(); closeModal(); } }
+
         function importBackup(inp) {
             const f = inp.files[0];
             if(!f) return;
@@ -431,24 +454,24 @@
                 try {
                     const d = JSON.parse(e.target.result);
                     const data = Array.isArray(d) ? d : (d.entries || []);
-                    if(data.length > 0 && confirm(`${data.length} Einträge laden?`)) {
+                    if(data.length > 0) {
                         entries = data;
                         localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries));
                         location.reload();
                     }
-                } catch { alert("Fehler beim Laden"); }
+                } catch { alert("Backup ungültig"); }
             };
             r.readAsText(f);
         }
 
-        function closeModal() { els.modal.classList.replace('flex', 'hidden'); }
-        function openSettings() { els.settingsModal.classList.replace('hidden', 'flex'); }
-        function closeSettings() { els.settingsModal.classList.replace('flex', 'hidden'); }
-        function updateModalLabels() { if(els.inpCat.value==='etf') { if(!els.inpProd.value) els.inpProd.value="Core MSCI World USD (Acc)"; } }
-        function deleteCurrentEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== currentEditId); localStorage.setItem('portfolio_entries_v12', JSON.stringify(entries)); render(); renderList(); closeModal(); } }
-        function exportBackup() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries)); a.download = "portfolio_backup.json"; a.click(); }
+        function exportBackup() { 
+            const a = document.createElement('a'); 
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries)); 
+            a.download = "portfolio_v12_backup.json"; a.click(); 
+        }
 
-        // Startvorgang
+        function updateModalLabels() { if(els.inpCat.value==='etf') { if(!els.inpProd.value) els.inpProd.value="Core MSCI World USD (Acc)"; } }
+
         document.addEventListener("DOMContentLoaded", () => {
             render(); 
             fetchAllPrices();
