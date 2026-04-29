@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V18</title>
+    <title>Portfolio V20</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -69,7 +69,8 @@
 
         <div class="mb-10 text-center shrink-0">
             <p class="text-gray-500 text-xs font-medium uppercase tracking-widest mb-2">Portfolio Wert</p>
-            <h1 id="currentValueDisplay" class="text-4xl font-light tracking-tight text-white mb-3">•••• €</h1>
+            <h1 id="currentValueDisplay" class="text-4xl font-light tracking-tight text-white mb-1">•••• €</h1>
+            <p id="totalInvestDisplay" class="text-[11px] text-gray-500 mb-3">Investiert: •••• €</p>
             
             <div class="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-[#111] border border-[#222]">
                 <span id="plPercent" class="text-xs font-medium text-gray-400">0%</span>
@@ -82,19 +83,28 @@
         </div>
 
         <div class="grid grid-cols-3 gap-3 mb-6 shrink-0">
-            <div onclick="switchView('history', 'gold')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors">
+            <div onclick="switchView('history', 'gold')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors relative">
+                <span id="goldAlloc" class="absolute top-1.5 right-2 text-[8px] text-gray-600 font-bold">0%</span>
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Gold</p>
                 <p id="goldVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
+                <p id="goldInv" class="text-[8px] text-gray-500 mb-0.5">Kauf: •••• €</p>
+                <p id="goldAvg" class="text-[8px] text-gray-500 mb-0.5">Ø: •••• €/g</p>
                 <p id="goldPL" class="text-[9px] text-gray-600">0%</p>
             </div>
-            <div onclick="switchView('history', 'silver')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors">
+            <div onclick="switchView('history', 'silver')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors relative">
+                <span id="silverAlloc" class="absolute top-1.5 right-2 text-[8px] text-gray-600 font-bold">0%</span>
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Silber</p>
                 <p id="silverVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
+                <p id="silverInv" class="text-[8px] text-gray-500 mb-0.5">Kauf: •••• €</p>
+                <p id="silverAvg" class="text-[8px] text-gray-500 mb-0.5">Ø: •••• €/g</p>
                 <p id="silverPL" class="text-[9px] text-gray-600">0%</p>
             </div>
-            <div onclick="switchView('history', 'etf')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors">
+            <div onclick="switchView('history', 'etf')" class="bg-[#111] border border-[#222] rounded-lg p-3 text-center cursor-pointer active:bg-[#1a1a1a] transition-colors relative">
+                <span id="etfAlloc" class="absolute top-1.5 right-2 text-[8px] text-gray-600 font-bold">0%</span>
                 <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1">ETF</p>
                 <p id="etfVal" class="text-sm font-medium text-white mb-0.5">•••• €</p>
+                <p id="etfInv" class="text-[8px] text-gray-500 mb-0.5">Kauf: •••• €</p>
+                <p id="etfAvg" class="text-[8px] text-gray-500 mb-0.5">Ø: •••• €/Stk</p>
                 <p id="etfPL" class="text-[9px] text-gray-600">0%</p>
             </div>
         </div>
@@ -165,12 +175,17 @@
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-end sm:items-center justify-center p-4">
         <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
+            <div class="flex justify-between items-center mb-6">
                 <h3 id="modalTitle" class="text-white font-medium text-sm uppercase tracking-widest">Eintrag</h3>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph ph-x text-lg"></i></button>
             </div>
             
             <div class="space-y-6">
+                <div class="flex gap-2 p-1 bg-[#1a1a1a] rounded-lg">
+                    <button id="btnBuy" onclick="setTxType('buy')" class="flex-1 py-1.5 text-[10px] uppercase tracking-widest rounded bg-white text-black font-bold transition-all">Kauf</button>
+                    <button id="btnSell" onclick="setTxType('sell')" class="flex-1 py-1.5 text-[10px] uppercase tracking-widest rounded text-gray-500 font-bold transition-all">Verkauf</button>
+                </div>
+
                 <div class="flex gap-4">
                     <div class="w-1/3">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Typ</label>
@@ -188,7 +203,7 @@
 
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Preis (€)</label>
+                        <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Gesamtpreis (€)</label>
                         <input type="number" id="inpAmt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full py-2 text-lg font-medium">
                     </div>
                     <div class="w-1/2">
@@ -200,7 +215,7 @@
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Ort</label>
-                        <input type="text" id="inpLoc" placeholder="Händler" class="w-full py-2 text-sm">
+                        <input type="text" id="inpLoc" placeholder="Händler / Börse" class="w-full py-2 text-sm">
                     </div>
                     <div class="w-1/2">
                         <label class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Datum</label>
@@ -220,20 +235,22 @@
         // CONFIG & STATE
         let entries = JSON.parse(localStorage.getItem('portfolio_entries_v12')) || [];
         let prices = JSON.parse(localStorage.getItem('portfolio_prices_v12')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
-        let isPrivacyMode = true; // STARTET VERSTECKT
+        let isPrivacyMode = true; 
         let currentEditId = null;
-        let currentFilter = 'all'; // Speichert, welche Historie gerade aktiv ist
+        let currentFilter = 'all'; 
+        let currentTxType = 'buy'; // Speichert, ob Kauf oder Verkauf aktiv ist
 
         // UI ELEMENTS
         const els = {
             totalVal: document.getElementById('currentValueDisplay'),
+            totalInvest: document.getElementById('totalInvestDisplay'),
             plDisplay: document.getElementById('plDisplay'),
             plPercent: document.getElementById('plPercent'),
             sinceDate: document.getElementById('sinceDateLabel'),
             list: document.getElementById('historyList'),
-            goldVal: document.getElementById('goldVal'), goldPL: document.getElementById('goldPL'),
-            silverVal: document.getElementById('silverVal'), silverPL: document.getElementById('silverPL'),
-            etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
+            goldVal: document.getElementById('goldVal'), goldPL: document.getElementById('goldPL'), goldInv: document.getElementById('goldInv'), goldAlloc: document.getElementById('goldAlloc'), goldAvg: document.getElementById('goldAvg'),
+            silverVal: document.getElementById('silverVal'), silverPL: document.getElementById('silverPL'), silverInv: document.getElementById('silverInv'), silverAlloc: document.getElementById('silverAlloc'), silverAvg: document.getElementById('silverAvg'),
+            etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'), etfInv: document.getElementById('etfInv'), etfAlloc: document.getElementById('etfAlloc'), etfAvg: document.getElementById('etfAvg'),
             lastUpdate: document.getElementById('lastUpdateLabel'),
             iconPrivacy: document.getElementById('iconPrivacy'),
             mGold: document.getElementById('marketGold'),
@@ -253,13 +270,12 @@
         document.addEventListener("DOMContentLoaded", fetchAllPrices);
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
 
-        // VIEW & PRIVACY LOGIC (MIT FILTER)
+        // VIEW & PRIVACY LOGIC 
         function switchView(viewName, filter = 'all') {
             currentFilter = filter;
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if(viewName === 'history') {
                 document.getElementById('viewHistory').classList.add('active');
-                // Setze den Titel je nach Filter
                 const titles = { all: 'Gesamte Historie', gold: 'Gold Historie', silver: 'Silber Historie', etf: 'ETF Historie' };
                 els.historyTitle.innerText = titles[filter];
                 renderList();
@@ -273,50 +289,40 @@
             isPrivacyMode = !isPrivacyMode;
             els.iconPrivacy.className = isPrivacyMode ? "ph ph-eye-slash text-2xl" : "ph ph-eye text-2xl";
             render(); 
+            if(document.getElementById('viewHistory').classList.contains('active')) renderList();
         }
 
         function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
         function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
 
-        // FETCH-FUNKTION (MIT PROXY-KASKADE FÜR ETF)
+        // FETCH-FUNKTION
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
             if(icon) icon.classList.add('ph-spinner', 'spin-slow');
             els.lastUpdate.innerText = "Kurse werden aktualisiert...";
             
-            els.mGold.innerText = "Lade...";
-            els.mSilver.innerText = "Lade...";
-            els.mETF.innerText = "Lade...";
-
-            // 1. GOLD & SILBER - Ohne Yahoo (Extrem zuverlässig!)
+            // 1. GOLD & SILBER
             try {
                 const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json');
                 const data = await res.json();
                 
                 if (data && data.eur && data.eur.xau && data.eur.xag) {
-                    const pricePerOzGold = 1 / data.eur.xau;
-                    const pricePerOzSilver = 1 / data.eur.xag;
-                    
-                    prices.gold = pricePerOzGold / 31.1034768;   
-                    prices.silver = pricePerOzSilver / 31.1034768; 
+                    prices.gold = (1 / data.eur.xau) / 31.1034768;   
+                    prices.silver = (1 / data.eur.xag) / 31.1034768; 
                     
                     els.mGold.innerText = prices.gold.toFixed(2) + " €";
                     els.mSilver.innerText = prices.silver.toFixed(2) + " €";
-                } else {
-                    throw new Error("Daten fehlen");
-                }
+                } else { throw new Error("Daten fehlen"); }
             } catch (e) {
-                console.error("Fehler Gold/Silber:", e);
                 els.mGold.innerText = "Fehler";
                 els.mSilver.innerText = "Fehler";
             }
 
-            // 2. ETF (Core MSCI World) - Ausfallsystem mit 4 verschiedenen Abfrage-Wegen
+            // 2. ETF (Core MSCI World)
             try {
                 const url = 'https://query1.finance.yahoo.com/v8/finance/chart/EUNL.DE?interval=1d&range=1d';
                 let etfPrice = null;
 
-                // Liste aller möglichen Proxys. Er probiert sie nacheinander durch, bis einer klappt.
                 const proxies = [
                     `https://api.codetabs.com/v1/proxy?quest=${url}`,
                     `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&ts=${Date.now()}`,
@@ -329,12 +335,11 @@
                         const data = await res.json();
                         if (data?.chart?.result?.[0]?.meta?.regularMarketPrice) {
                             etfPrice = data.chart.result[0].meta.regularMarketPrice;
-                            break; // Gefunden! Stoppe die Suche.
+                            break; 
                         }
-                    } catch(err) { continue; } // Fehler? Nächsten Proxy probieren!
+                    } catch(err) { continue; }
                 }
 
-                // Wenn alles andere scheitert, probiere die alte /get Methode von AllOrigins
                 if (!etfPrice) {
                     const fallbackRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&ts=${Date.now()}`);
                     const fallbackData = await fallbackRes.json();
@@ -353,11 +358,9 @@
                     throw new Error("Alle Proxys blockiert");
                 }
             } catch (e) {
-                console.error("Fehler ETF:", e);
                 els.mETF.innerText = "Fehler";
             }
 
-            // Status speichern
             prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
             localStorage.setItem('portfolio_prices_v12', JSON.stringify(prices));
             els.lastUpdate.innerText = "Letztes Update: " + prices.lastUpdate;
@@ -366,9 +369,10 @@
             if(icon) icon.classList.remove('ph-spinner', 'spin-slow');
         }
 
-        // RENDER LOGIK
+        // RENDER LOGIK - MATHEMATISCH KORREKT MIT VERKÄUFEN
         function render() {
-            let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
+            let gInv=0, sInv=0, eInv=0;
+            let gWgt=0, sWgt=0, eWgt=0;
 
             if(entries.length === 0) els.sinceDate.innerText = "Keine Daten";
             else {
@@ -376,28 +380,32 @@
                 els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
             }
 
-            // Fallback Anzeige, falls fetch nicht lief
             if(prices.gold > 0 && els.mGold.innerText === "Lade...") els.mGold.innerText = prices.gold.toFixed(2) + " €";
             if(prices.silver > 0 && els.mSilver.innerText === "Lade...") els.mSilver.innerText = prices.silver.toFixed(2) + " €";
             if(prices.etf > 0 && els.mETF.innerText === "Lade...") els.mETF.innerText = prices.etf.toFixed(2) + " €";
-            els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
 
             entries.forEach(e => {
-                tInv += e.amount;
-                let p = 0;
-                if(e.category === 'gold') p = prices.gold;
-                else if(e.category === 'silver') p = prices.silver;
-                else p = prices.etf;
+                // Negative Werte werden hier mathematisch perfekt verarbeitet!
+                let amt = parseFloat(e.amount) || 0;
+                let wgt = parseFloat(e.weight) || 0;
                 
-                let val = (p > 0) ? e.weight * p : e.amount;
-                
-                if(e.category === 'gold') { gVal += val; gInv += e.amount; }
-                else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
-                else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
-                tVal += val;
+                if(e.category === 'gold') { gInv += amt; gWgt += wgt; }
+                else if(e.category === 'silver') { sInv += amt; sWgt += wgt; }
+                else if(e.category === 'etf') { eInv += amt; eWgt += wgt; }
             });
 
+            // Aktueller Wert ist: Gesamtes restliches Gewicht * Aktueller Preis
+            let gVal = (gWgt > 0 && prices.gold > 0) ? gWgt * prices.gold : 0;
+            let sVal = (sWgt > 0 && prices.silver > 0) ? sWgt * prices.silver : 0;
+            let eVal = (eWgt > 0 && prices.etf > 0) ? eWgt * prices.etf : 0;
+
+            let tInv = gInv + sInv + eInv;
+            let tVal = gVal + sVal + eVal;
+
+            // Update UI
             els.totalVal.innerText = fmt(tVal);
+            els.totalInvest.innerText = "Investiert: " + fmt(tInv);
+            
             const totalPL = tVal - tInv;
             const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
             
@@ -408,15 +416,14 @@
             els.plDisplay.className = "text-xs " + col;
             els.plPercent.className = "text-xs font-bold " + col;
 
-            updateCard(els.goldVal, els.goldPL, gVal, gInv);
-            updateCard(els.silverVal, els.silverPL, sVal, sInv);
-            updateCard(els.etfVal, els.etfPL, eVal, eInv);
+            updateCard(els.goldVal, els.goldPL, els.goldInv, els.goldAlloc, els.goldAvg, gVal, gInv, gWgt, tVal, "/g");
+            updateCard(els.silverVal, els.silverPL, els.silverInv, els.silverAlloc, els.silverAvg, sVal, sInv, sWgt, tVal, "/g");
+            updateCard(els.etfVal, els.etfPL, els.etfInv, els.etfAlloc, els.etfAvg, eVal, eInv, eWgt, tVal, "/Stk");
         }
 
         function renderList() {
             els.list.innerHTML = '';
             
-            // FILTER-FUNKTION HIER ANGEWENDET
             const filteredEntries = currentFilter === 'all' 
                 ? entries 
                 : entries.filter(e => e.category === currentFilter);
@@ -427,15 +434,29 @@
             }
 
             filteredEntries.forEach(e => {
-                let p = 0;
-                if(e.category === 'gold') p = prices.gold;
-                else if(e.category === 'silver') p = prices.silver;
-                else p = prices.etf;
+                let isSell = e.amount < 0;
+                let amtAbs = Math.abs(e.amount);
+                
+                let valDisplay = '';
+                let plDisplay = '';
 
-                const val = (p > 0) ? e.weight * p : e.amount;
-                const pl = val - e.amount;
-                const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
-                const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
+                if (!isSell) {
+                    let p = 0;
+                    if(e.category === 'gold') p = prices.gold;
+                    else if(e.category === 'silver') p = prices.silver;
+                    else p = prices.etf;
+
+                    const val = (p > 0) ? e.weight * p : e.amount;
+                    const pl = val - e.amount;
+                    const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
+                    const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
+                    
+                    valDisplay = `<span class="text-white text-sm font-light">${fmt(val)}</span>`;
+                    plDisplay = `<span class="${col}">${pl >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>`;
+                } else {
+                    valDisplay = `<span class="text-gray-400 text-sm font-light uppercase tracking-widest text-[9px]">Realisiert</span>`;
+                    plDisplay = `<span class="text-red-400 font-medium tracking-widest text-[9px]">VERKAUF</span>`;
+                }
                 
                 const dateStr = new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
                 let catLabel = e.category === 'etf' ? 'ETF' : (e.category === 'gold' ? 'Gold' : 'Silber');
@@ -446,7 +467,7 @@
                 el.innerHTML = `
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-white text-sm font-medium">${e.product}</span>
-                        <span class="text-white text-sm font-light">${fmt(val)}</span>
+                        ${valDisplay}
                     </div>
                     <div class="flex justify-between items-center">
                         <div class="text-[10px] text-gray-500 flex gap-2">
@@ -455,9 +476,9 @@
                             <span>${dateStr}</span>
                             ${e.location ? `<span>• ${e.location}</span>` : ''}
                         </div>
-                        <div class="flex gap-2 text-[10px]">
-                            <span class="text-gray-600">${isPrivacyMode ? '•••• €' : fmt0(e.amount)}</span>
-                            <span class="${col}">${pl >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>
+                        <div class="flex gap-2 text-[10px] items-center">
+                            <span class="text-gray-600">${fmt0(amtAbs)}</span>
+                            ${plDisplay}
                         </div>
                     </div>
                 `;
@@ -465,15 +486,33 @@
             });
         }
 
-        function updateCard(elVal, elPL, curr, inv) {
+        function updateCard(elVal, elPL, elInv, elAlloc, elAvg, curr, inv, wgt, tVal, unit) {
             const diff = curr - inv;
             const pct = inv > 0 ? (diff/inv)*100 : 0;
+            const alloc = tVal > 0 ? (curr/tVal)*100 : 0;
+            const avg = wgt > 0 ? (inv/wgt) : 0;
+            
             elVal.innerText = fmt(curr);
+            elInv.innerText = "Kauf: " + fmt(inv);
             elPL.innerText = (diff >= 0 ? "+" : "") + pct.toFixed(1) + "%";
             elPL.className = diff >= 0 ? "text-[9px] text-green-500" : "text-[9px] text-red-500";
+            
+            elAlloc.innerText = alloc.toFixed(0) + "%";
+            elAvg.innerText = (avg > 0) ? ("Ø: " + fmt(avg) + unit) : ("Ø: -- €" + unit);
         }
 
-        // DATENVERWALTUNG & MODALS
+        // DATENVERWALTUNG, KAUF/VERKAUF SWITCH & MODALS
+        function setTxType(type) {
+            currentTxType = type;
+            if(type === 'buy') {
+                document.getElementById('btnBuy').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest rounded bg-white text-black font-bold transition-all";
+                document.getElementById('btnSell').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest rounded text-gray-500 font-bold transition-all";
+            } else {
+                document.getElementById('btnSell').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest rounded bg-red-900 text-white font-bold transition-all";
+                document.getElementById('btnBuy').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest rounded text-gray-500 font-bold transition-all";
+            }
+        }
+
         function openModal(id = null) {
             currentEditId = id;
             els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
@@ -482,17 +521,26 @@
                 document.getElementById('modalTitle').innerText = "Bearbeiten";
                 els.btnDelete.classList.remove('hidden');
                 els.inpCat.value = e.category; els.inpProd.value = e.product;
-                els.inpAmt.value = e.amount; els.inpWgt.value = e.weight;
+                
+                // Wir zeigen dem Nutzer immer positive Zahlen beim Bearbeiten
+                els.inpAmt.value = Math.abs(e.amount); 
+                els.inpWgt.value = Math.abs(e.weight);
+                
                 els.inpLoc.value = e.location || ''; els.inpDate.value = e.date;
+                
+                // Setze den Schalter je nachdem, ob der gespeicherte Betrag negativ ist
+                setTxType(e.amount < 0 ? 'sell' : 'buy');
             } else {
                 document.getElementById('modalTitle').innerText = "Neuer Eintrag";
                 els.btnDelete.classList.add('hidden');
                 els.inpCat.value = 'gold'; els.inpProd.value = '';
                 els.inpAmt.value = ''; els.inpWgt.value = '';
                 els.inpLoc.value = ''; els.inpDate.value = new Date().toISOString().split('T')[0];
+                setTxType('buy');
             }
             updateModalLabels();
         }
+
         function closeModal() { els.modal.classList.add('hidden'); els.modal.classList.remove('flex'); currentEditId = null; }
         
         function updateModalLabels() {
@@ -508,9 +556,18 @@
         }
         
         function saveEntry() {
-            const amt = parseFloat(els.inpAmt.value);
-            const wgt = parseFloat(els.inpWgt.value);
+            let amt = parseFloat(els.inpAmt.value);
+            let wgt = parseFloat(els.inpWgt.value);
             if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
+            
+            // Wenn Verkauf gedrückt wurde, mache die Zahlen intern negativ!
+            if(currentTxType === 'sell') {
+                amt = -Math.abs(amt);
+                wgt = -Math.abs(wgt);
+            } else {
+                amt = Math.abs(amt);
+                wgt = Math.abs(wgt);
+            }
             
             const cat = els.inpCat.value;
             let prod = els.inpProd.value.trim();
@@ -575,7 +632,8 @@
         }
         
         function fmt(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
-        function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
+        // Neue fmt0 Version, die den Privacy Modus für die Historie beachtet
+        function fmt0(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
     </script>
 </body>
 </html>
