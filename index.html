@@ -341,7 +341,6 @@
                     els.mBTC.innerText = prices.btc.toLocaleString('de-DE') + " €";
                 }
             } catch(e) {
-                // Fallback Krypto API falls Coingecko limitiert
                 try {
                     const res = await fetch('https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=EUR');
                     const data = await res.json();
