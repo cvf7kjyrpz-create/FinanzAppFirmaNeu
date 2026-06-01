@@ -238,7 +238,7 @@
         let isPrivacyMode = true; 
         let currentEditId = null;
         let currentFilter = 'all'; 
-        let currentTxType = 'buy'; // Speichert, ob Kauf oder Verkauf aktiv ist
+        let currentTxType = 'buy'; 
 
         // UI ELEMENTS
         const els = {
@@ -385,7 +385,6 @@
             if(prices.etf > 0 && els.mETF.innerText === "Lade...") els.mETF.innerText = prices.etf.toFixed(2) + " €";
 
             entries.forEach(e => {
-                // Negative Werte werden hier mathematisch perfekt verarbeitet!
                 let amt = parseFloat(e.amount) || 0;
                 let wgt = parseFloat(e.weight) || 0;
                 
@@ -394,7 +393,6 @@
                 else if(e.category === 'etf') { eInv += amt; eWgt += wgt; }
             });
 
-            // Aktueller Wert ist: Gesamtes restliches Gewicht * Aktueller Preis
             let gVal = (gWgt > 0 && prices.gold > 0) ? gWgt * prices.gold : 0;
             let sVal = (sWgt > 0 && prices.silver > 0) ? sWgt * prices.silver : 0;
             let eVal = (eWgt > 0 && prices.etf > 0) ? eWgt * prices.etf : 0;
@@ -402,7 +400,6 @@
             let tInv = gInv + sInv + eInv;
             let tVal = gVal + sVal + eVal;
 
-            // Update UI
             els.totalVal.innerText = fmt(tVal);
             els.totalInvest.innerText = "Investiert: " + fmt(tInv);
             
@@ -522,13 +519,11 @@
                 els.btnDelete.classList.remove('hidden');
                 els.inpCat.value = e.category; els.inpProd.value = e.product;
                 
-                // Wir zeigen dem Nutzer immer positive Zahlen beim Bearbeiten
                 els.inpAmt.value = Math.abs(e.amount); 
                 els.inpWgt.value = Math.abs(e.weight);
                 
                 els.inpLoc.value = e.location || ''; els.inpDate.value = e.date;
                 
-                // Setze den Schalter je nachdem, ob der gespeicherte Betrag negativ ist
                 setTxType(e.amount < 0 ? 'sell' : 'buy');
             } else {
                 document.getElementById('modalTitle').innerText = "Neuer Eintrag";
@@ -560,7 +555,6 @@
             let wgt = parseFloat(els.inpWgt.value);
             if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
             
-            // Wenn Verkauf gedrückt wurde, mache die Zahlen intern negativ!
             if(currentTxType === 'sell') {
                 amt = -Math.abs(amt);
                 wgt = -Math.abs(wgt);
@@ -632,7 +626,6 @@
         }
         
         function fmt(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
-        // Neue fmt0 Version, die den Privacy Modus für die Historie beachtet
         function fmt0(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
     </script>
 </body>
